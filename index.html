@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Kerry's Kitchen Garden">
+<meta name="theme-color" content="#1a4210">
+<title>Kerry's Kitchen Garden</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream:    #faf7f0;
+  --cream2:   #f0ebe0;
+  --ink:      #1a1810;
+  --ink2:     #3a3020;
+  --green:    #1a4210;
+  --green2:   #2a6018;
+  --green3:   #4a8830;
+  --muted:    #6a5e48;
+  --border:   #c8b890;
+  --border2:  #d8cca8;
+  --white:    #ffffff;
+  --header-bg:   #d6e8c8;
+  --header-ink:  #1a3210;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bot: env(safe-area-inset-bottom, 0px);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%; overflow: hidden; background: var(--cream2);
+  font-family: 'Jost', Georgia, sans-serif; color: var(--ink);
+  -webkit-font-smoothing: antialiased; font-size: 18px;
+}
+#app {
+  height: 100%; display: flex; flex-direction: column;
+  background: var(--cream2); max-width: 480px; margin: 0 auto;
+  position: relative; overflow: hidden;
+}
+.screen {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  overflow: hidden; background: var(--cream);
+  transition: transform 0.30s cubic-bezier(0.4,0,0.2,1), opacity 0.30s ease;
+}
+.screen.hidden     { transform: translateX(100%);  opacity: 0; pointer-events: none; }
+.screen.slide-left { transform: translateX(-28%);  opacity: 0; pointer-events: none; }
+
+#screen-home .header {
+  background: var(--header-bg);
+  padding: calc(var(--safe-top) + 20px) 20px 20px;
+  flex-shrink: 0; border-bottom: 3px solid #8ab878;
+}
+.home-eyebrow { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #3a6028; opacity: .9; margin-bottom: 6px; }
+.home-title   { font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 400; color: var(--header-ink); line-height: 1.15; }
+.home-title em { font-style: italic; color: #5a1808; }
+.home-sub     { font-size: 15px; color: #3a5028; margin-top: 6px; line-height: 1.4; }
+.home-body    { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(var(--safe-bot) + 20px); background: var(--cream); }
+
+.map-wrap     { padding: 14px 16px 6px; background: var(--header-bg); }
+.map-wrap svg { width: 100%; height: auto; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,.15); }
+.bed-rect     { cursor: pointer; transition: opacity .15s; }
+.bed-rect:active { opacity: .72; }
+
+.bed-cards { padding: 8px 14px 14px; display: flex; flex-direction: column; gap: 8px; }
+.bed-card  { background: var(--white); border: 1.5px solid var(--border2); border-radius: 12px; padding: 13px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: background .12s, transform .10s; -webkit-tap-highlight-color: transparent; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+.bed-card:active { background: var(--cream2); transform: scale(.98); }
+.bed-card-num  { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 26px; color: white; flex-shrink: 0; }
+.bed-card-info { flex: 1; min-width: 0; }
+.bed-card-name { font-size: 18px; font-weight: 600; color: var(--ink); line-height: 1.2; }
+.bed-card-dims { font-size: 14px; color: var(--muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bed-card-arrow { font-size: 24px; color: var(--border); flex-shrink: 0; line-height: 1; }
+
+.back-bar { display: flex; align-items: center; padding: calc(var(--safe-top) + 10px) 14px 8px; flex-shrink: 0; background: var(--cream); border-bottom: 1px solid var(--border2); }
+.back-btn { display: flex; align-items: center; gap: 5px; font-size: 17px; font-weight: 500; color: var(--green2); background: rgba(42,96,24,.08); border-radius: 20px; padding: 8px 16px 8px 12px; cursor: pointer; transition: background .12s; -webkit-tap-highlight-color: transparent; }
+.back-btn:active { background: rgba(42,96,24,.16); }
+
+#screen-bed { background: var(--cream); }
+.bed-hero   { flex-shrink: 0; padding: 16px 18px 18px; background: var(--cream); border-bottom: 1px solid var(--border2); }
+.bed-hero-number { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
+.bed-hero-name   { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 400; color: var(--ink); line-height: 1.15; }
+.bed-hero-dims   { font-size: 15px; color: var(--muted); margin-top: 4px; }
+.bed-hero-char   { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-style: italic; line-height: 1.6; color: var(--ink2); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border2); }
+
+.bed-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px 14px; padding-bottom: calc(var(--safe-bot) + 24px); background: var(--cream2); }
+.plants-label { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); padding: 0 2px 10px; }
+
+.plant-card { background: var(--white); border: 1.5px solid var(--border2); border-radius: 12px; padding: 15px 14px; display: flex; align-items: flex-start; gap: 13px; cursor: pointer; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.07); transition: background .12s, transform .10s; -webkit-tap-highlight-color: transparent; }
+.plant-card:active { background: var(--cream2); transform: scale(.98); }
+.plant-swatch     { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+.plant-card-body  { flex: 1; min-width: 0; }
+.plant-card-name  { font-size: 18px; font-weight: 600; color: var(--ink); line-height: 1.25; }
+.plant-card-latin { font-family: 'Cormorant Garamond', serif; font-size: 15px; font-style: italic; color: var(--muted); margin-top: 2px; }
+.plant-card-oneliner { font-size: 15px; color: var(--ink2); margin-top: 6px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.plant-tag-pill   { display: inline-block; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 10px; margin-top: 6px; background: var(--cream2); color: var(--muted); border: 1px solid var(--border); }
+.plant-card-arrow { font-size: 24px; color: var(--border); margin-top: 4px; flex-shrink: 0; }
+
+#screen-plant { background: var(--white); }
+#screen-plant .back-bar { background: var(--white); }
+.plant-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; background: var(--white); }
+
+.plant-hero { padding: 18px 20px 20px; border-bottom: 1px solid var(--border2); background: var(--cream); }
+.plant-hero-swatch   { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin-bottom: 14px; }
+.plant-hero-name     { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 400; color: var(--green); line-height: 1.15; }
+.plant-hero-latin    { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-style: italic; color: var(--muted); margin-top: 3px; }
+.plant-hero-oneliner { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic; line-height: 1.6; color: var(--ink2); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border2); }
+
+.plant-meta       { padding: 14px 20px; display: flex; gap: 18px; flex-wrap: wrap; border-bottom: 1px solid var(--border2); background: var(--white); }
+.plant-meta-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+.plant-meta-value { font-size: 17px; color: var(--ink); margin-top: 2px; font-weight: 500; }
+
+.plant-section { padding: 20px 20px; border-bottom: 1px solid var(--border2); }
+.plant-section:last-child { border-bottom: none; padding-bottom: calc(var(--safe-bot) + 36px); }
+.plant-section-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+.plant-section-label::after { content: ''; flex: 1; height: 1px; background: var(--border2); }
+.plant-section-icon { font-size: 16px; }
+.plant-origin { font-size: 17px; color: var(--green2); font-weight: 600; line-height: 1.45; }
+.plant-text   { font-family: 'Cormorant Garamond', serif; font-size: 20px; line-height: 1.85; color: var(--ink2); }
+.plant-text p { margin-bottom: 1em; }
+.plant-text p:last-child { margin-bottom: 0; }
+
+.bed-body::-webkit-scrollbar,
+.plant-body::-webkit-scrollbar,
+.home-body::-webkit-scrollbar { display: none; }
+
+#install-banner {
+  position: fixed; bottom: calc(var(--safe-bot) + 16px); left: 50%;
+  transform: translateX(-50%); background: var(--green); color: #c8f0a8;
+  font-size: 13px; padding: 11px 18px; border-radius: 22px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.3); white-space: nowrap; z-index: 100;
+  display: none; align-items: center; gap: 8px; max-width: calc(100% - 32px);
+  cursor: pointer; border: 1.5px solid rgba(160,230,120,.25);
+}
+.fade-in { animation: fadeIn .35s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="screen-home" class="screen">
+    <div class="header">
+      <div class="home-eyebrow">Nannup Flower &amp; Garden Festival · August 2026</div>
+      <div class="home-title">Kerry's <em>Kitchen</em> Garden</div>
+      <div class="home-sub">8 Dunnet Rd. Nannup WA</div>
+      <div class="home-sub">Tap a bed on the map or a card below to explore its plants</div>
+    </div>
+    <div class="home-body">
+      <div class="map-wrap"><svg id="garden-map" viewBox="0 0 320 440" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="bshadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="1" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,0.18)"/>
+    </filter>
+  </defs>
+
+  <!-- Ground -->
+  <rect width="320" height="440" fill="#b8d4a8" rx="10"/>
+  <rect x="4" y="4" width="312" height="432" fill="#bcd6ac" rx="8"/>
+
+  <!-- BED 5 — 3m E-W — burgundy  (y=87, h=52, bottom=139) -->
+  <rect data-bed="5" x="40" y="87" width="160" height="52" rx="5"
+        fill="#3d0c18" stroke="#c04060" stroke-width="2"
+        filter="url(#bshadow)" class="bed-rect"/>
+  <text x="120" y="108" text-anchor="middle"
+        fill="#f8c0cc" font-size="13" font-family="Georgia,serif" font-weight="bold"
+        pointer-events="none">5</text>
+  <text x="120" y="123" text-anchor="middle"
+        fill="#f0a0b0" font-size="11" font-family="Georgia,serif"
+        pointer-events="none">Climber &amp; Chicory</text>
+
+  <!-- BED 4 — 3m N-S left — indigo  (y=159, h=175) -->
+  <rect data-bed="4" x="40" y="159" width="52" height="175" rx="5"
+        fill="#1a0840" stroke="#9060e0" stroke-width="2"
+        filter="url(#bshadow)" class="bed-rect"/>
+  <text x="66" y="200" text-anchor="middle"
+        fill="#d8b8f8" font-size="13" font-family="Georgia,serif" font-weight="bold"
+        transform="rotate(-90,66,200)" pointer-events="none">4</text>
+  <text x="66" y="270" text-anchor="middle"
+        fill="#b898e0" font-size="11" font-family="Georgia,serif"
+        transform="rotate(-90,66,270)" pointer-events="none">Shade Larder</text>
+
+  <!-- BED 3 — 3m N-S middle — amber  (y=159, h=175) -->
+  <rect data-bed="3" x="136" y="159" width="52" height="175" rx="5"
+        fill="#3a1e04" stroke="#d08030" stroke-width="2"
+        filter="url(#bshadow)" class="bed-rect"/>
+  <text x="162" y="200" text-anchor="middle"
+        fill="#f8d898" font-size="13" font-family="Georgia,serif" font-weight="bold"
+        transform="rotate(-90,162,200)" pointer-events="none">3</text>
+  <text x="162" y="270" text-anchor="middle"
+        fill="#e0b060" font-size="11" font-family="Georgia,serif"
+        transform="rotate(-90,162,270)" pointer-events="none">Jewel Bed</text>
+
+  <!-- BED 1 — 12m N-S right — forest green
+       North end extends 52px (= Bed 5 height) above Bed 5 north edge (y=100)
+       So top = 100-52 = 48, bottom = old 326+60 = 386, height = 338 -->
+  <rect data-bed="1" x="232" y="48" width="52" height="338" rx="5"
+        fill="#0a2408" stroke="#50a838" stroke-width="2"
+        filter="url(#bshadow)" class="bed-rect"/>
+  <text x="258" y="90" text-anchor="middle"
+        fill="#b8f098" font-size="13" font-family="Georgia,serif" font-weight="bold"
+        transform="rotate(-90,258,90)" pointer-events="none">1</text>
+  <text x="258" y="200" text-anchor="middle"
+        fill="#80d860" font-size="11" font-family="Georgia,serif"
+        transform="rotate(-90,258,200)" pointer-events="none">Hillside Bed</text>
+
+  <!-- BED 2 — Asian Kitchen — teal
+       Width extended so east edge (40+244=284) aligns with Bed 1 east edge (232+52=284) -->
+  <rect data-bed="2" x="40" y="354" width="244" height="52" rx="5"
+        fill="#062418" stroke="#30b880" stroke-width="2"
+        filter="url(#bshadow)" class="bed-rect"/>
+  <text x="162" y="375" text-anchor="middle"
+        fill="#98f8d8" font-size="13" font-family="Georgia,serif" font-weight="bold"
+        pointer-events="none">2</text>
+  <text x="162" y="390" text-anchor="middle"
+        fill="#60d8a8" font-size="11" font-family="Georgia,serif"
+        pointer-events="none">Asian Kitchen</text>
+
+  <!-- ARCH — Bed 5 east end to Bed 1 west side — Sweet Pea Matucana -->
+  <path d="M200,100 L200,87 Q216,72 232,87 L232,100"
+        fill="none" stroke="#7a5428" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- ARCH — Bed 4 east to Bed 3 west — Purple Podded Pea -->
+  <path d="M92,185 L92,163 Q114,148 136,163 L136,185"
+        fill="none" stroke="#7a5428" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- ARCH — Bed 3 east to Bed 1 west — Yakumo Giant Pea -->
+  <path d="M188,185 L188,163 Q210,148 232,163 L232,185"
+        fill="none" stroke="#7a5428" stroke-width="3.5" stroke-linecap="round"/>
+
+  <g transform="translate(290,410)">
+    <circle cx="0" cy="0" r="16" fill="#f5f0e4" stroke="#6a5030" stroke-width="1.5"/>
+    <polygon points="0,-11 2.5,-4 -2.5,-4" fill="#c03020"/>
+    <polygon points="0,11 2.5,4 -2.5,4" fill="#8a7050"/>
+    <text x="0" y="-13" text-anchor="middle" fill="#c03020" font-size="8"
+          font-family="Georgia,serif" font-weight="bold">N</text>
+    <text x="0" y="21" text-anchor="middle" fill="#6a5030" font-size="7"
+          font-family="Georgia,serif">S</text>
+  </g>
+</svg></div>
+      <div class="bed-cards" id="bed-cards"></div>
+    </div>
+  </div>
+
+  <div id="screen-bed" class="screen hidden">
+    <div class="back-bar" onclick="goHome()">
+      <div class="back-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Garden Map
+      </div>
+    </div>
+    <div class="bed-hero" id="bed-hero"></div>
+    <div class="bed-body">
+      <div class="plants-label">Plants in this bed</div>
+      <div id="plant-list"></div>
+    </div>
+  </div>
+
+  <div id="screen-plant" class="screen hidden">
+    <div class="back-bar">
+      <div class="back-btn" id="plant-back-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        <span id="plant-back-label">Back</span>
+      </div>
+    </div>
+    <div class="plant-body" id="plant-body"></div>
+  </div>
+
+</div>
+
+<div id="install-banner" onclick="dismissBanner()">
+  <span>⬆</span> Add to Home Screen for offline use
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+</div>
+
+<script>
+const BEDS = {
+  "1": {
+    "name": "The Hillside Bed",
+    "nickname": "Bed One",
+    "dims": "12m × 1m · North–South · Full sun · East hillside · Red Orach at south end · Rhubarb 2m from south end",
+    "color": "#1e5c14",
+    "light": "#6abf54",
+    "bg": "#e8f0df",
+    "character": "Architectural drama at the north end with artichoke and purple cauliflower visible across the lawn. Deepening into dark brassicas through the middle, with established rhubarb 2m from the south, and red orach anchoring the far south end.",
+    "plants": [
+      7,
+      3,
+      39,
+      1,
+      4,
+      5,
+      6,
+      8,
+      35,
+      36,
+      40
+    ]
+  },
+  "2": {
+    "name": "The Asian Kitchen Bed",
+    "nickname": "Bed Two",
+    "dims": "5m × 1m · East–West",
+    "color": "#0e6e50",
+    "light": "#44c498",
+    "bg": "#dff0e8",
+    "character": "A living pantry of Asian flavours. Dormant rhizomes sleep under white violas — every plant reaches across the Pacific.",
+    "plants": [
+      15,
+      14,
+      38,
+      9,
+      11,
+      13,
+      12,
+      10,
+      16,
+      37
+    ]
+  },
+  "3": {
+    "name": "The Jewel Bed",
+    "nickname": "Bed Three",
+    "dims": "3m × 1m · North–South · Full sun · Yakumo Giant Pea arch at east side · Romanesco at south end",
+    "color": "#8a4c08",
+    "light": "#e8a84a",
+    "bg": "#f5eedd",
+    "character": "Candy-stripe beetroot, giant parsley, and the extraordinary Yakumo Giant pea climbing the eastern arch with enormous flat pods. Romanesco stands sentinel at the south end.",
+    "plants": [
+      18,
+      19,
+      5,
+      17,
+      21,
+      34
+    ]
+  },
+  "4": {
+    "name": "The Shade Larder",
+    "nickname": "Bed Four",
+    "dims": "3m × 1m · North–South · Afternoon shade · Purple Podded Pea arch at east side · Romanesco at south end",
+    "color": "#4a1888",
+    "light": "#c09cf0",
+    "bg": "#ede8f5",
+    "character": "The classic repertoire of the French kitchen garden — chervil, sorrel, heritage lettuces — with purple peas climbing the eastern arch and Romanesco anchoring the south.",
+    "plants": [
+      26,
+      27,
+      23,
+      24,
+      22,
+      25,
+      34
+    ]
+  },
+  "5": {
+    "name": "The Climber & Chicory Bed",
+    "nickname": "Bed Five",
+    "dims": "3m × 1m · East–West · Wire mesh on south face · Matucana arch at east end",
+    "color": "#8a0c24",
+    "light": "#f09aaa",
+    "bg": "#f5e8ec",
+    "character": "The fragrant entrance — Matucana on the arch, wine-red radicchio below, snap peas on the south-face mesh, near-black violas at the front edge.",
+    "plants": [
+      32,
+      31,
+      29,
+      30,
+      33
+    ]
+  }
+};
+
+const PLANTS = {
+  1: {
+    name: `Globe Artichoke 'Green Globe'`,
+    latin: `Cynara scolymus`,
+    qty: `3 seedlings`,
+    tag: `North end · 1.5m wide section`,
+    color: `#4a7830`,
+    emoji: `🌿`,
+    oneliner: `The classic kitchen garden artichoke — large, bold, unmistakable. In continuous cultivation since the Renaissance and still the definitive variety for a serious kitchen.`,
+    origin: `Mediterranean · cultivated since ancient Rome · Green Globe developed in France and Italy`,
+    history: `The globe artichoke as a cultivated plant was developed from the wild cardoon in the gardens of Naples and Sicily during the fifteenth century, likely under Arab influence — the Arabic al-kharshuf giving the vegetable its name through Spanish and Italian. Catherine de' Medici, who arrived in France as a teenager to marry the future Henri II in 1533, is said to have brought artichoke cultivation north with her from Florence, thereby introducing it to French haute cuisine where it has remained ever since.
+
+Green Globe is the standard-bearing variety of the kitchen garden tradition — large, tightly-budded, with the classic architecture of overlapping grey-green bracts that any cook recognises immediately. It is the artichoke of the French potager and the Italian orto, grown continuously for centuries without significant change because nothing has needed improving.`,
+    kitchen: `Every part of the artichoke is edible at different stages of its development. The immature bud, the stem, the bracts, the heart, and the base can each be approached differently. The plant contains cynarin, a compound that makes everything tasted afterward seem sweeter — a remarkable property that makes artichokes one of the most wine-unfriendly vegetables at the table, but endlessly fascinating as a palate modifier.
+
+At the festival in August, first-year plants will be establishing rather than budding — but the architectural foliage alone is striking and immediately recognisable. A chef of Guy Jeffreys' calibre will know them on sight and understand exactly what they'll become.`,
+    growing: `Planted as seedlings in March. Needs full sun and rich, well-drained soil — sheep manure worked into the planting hole at depth is ideal. Space 80–90cm apart in the wide north end of Bed 1. Water every 2–3 days for the first month while establishing, then back off. First-year plants will not produce harvestable buds — these come in year two. Watch for slugs and snails on young foliage in the first weeks.`
+  },
+  39: {
+    name: `Purple Cauliflower`,
+    latin: `Brassica oleracea var. botrytis`,
+    qty: `1 seedling`,
+    tag: `North end · Bed 1`,
+    color: `#6a2080`,
+    emoji: `🥦`,
+    oneliner: `A cauliflower that earns its place visually as well as culinarily — the purple pigment from anthocyanins, the same compounds in red wine and blueberries.`,
+    origin: `Mediterranean · cauliflower developed from wild brassica · purple forms known since antiquity`,
+    history: `Cauliflower has been cultivated since at least the sixth century BC, when it appears in writings from Cyprus, and was refined extensively by Arab agriculturalists before entering European kitchen gardens in the sixteenth century. The word cauliflower derives from the Latin caulis (stalk) and flos (flower) — the edible part is technically an undeveloped flower head, a curd of tightly packed immature flower buds.
+
+Purple cauliflower gets its colour from anthocyanins — the same pigment group responsible for the colour of red wine, blueberries and purple kale. The colour deepens with cold, making a Nannup winter ideal for developing the most saturated purple. Unlike red cabbage, the purple colour in cauliflower largely disappears when cooked, which is a fact worth knowing at the table rather than a disappointment.`,
+    kitchen: `Raw, purple cauliflower is visually dramatic — the purple curd against a white plate or a composed salad is striking. Broken into florets for a crudité plate it is one of the most beautiful raw vegetables available. Roasted whole with olive oil and salt the outside caramelises deeply while the interior stays dense and sweet — one of the finest ways to treat any cauliflower.
+
+The anthocyanin pigment reacts with acids and alkalis in cooking — a squeeze of lemon over raw florets will intensify the purple; blanching in alkaline water will turn it blue-green. Both effects are worth understanding and can be used deliberately.`,
+    growing: `Plant seedling now in March in the wide north end of Bed 1. Cauliflower needs rich, firm soil — work in compost or sheep manure at planting. Keep consistently moist. 80–100 days from transplant to harvest, which puts the head developing in June–July for an August festival display. Protect the developing curd from frost by folding inner leaves over it. Harvest when the curd is firm and tight before it begins to separate.`
+  },
+  3: {
+    name: `Cavolo Nero`,
+    latin: `Brassica oleracea 'Nero di Toscana'`,
+    qty: `7 plants`,
+    tag: null,
+    color: `#121e0e`,
+    emoji: `🥬`,
+    oneliner: `The deep blue-black Tuscan kale that makes ribollita. Cold makes it sweet. Nothing else does this.`,
+    origin: `Tuscany, Italy · centuries of continuous cultivation`,
+    history: `Cavolo nero — black cabbage, Tuscan kale — has been grown in the Tuscan hills for centuries, where it forms the backbone of the region's cucina povera tradition. The deeply blistered, wrinkled leaves are inseparable from the slow-cooked soups and braises that define Florentine peasant cooking across the winter months.
+
+The variety 'Nero di Toscana' is the ancestral form, its long blue-black leaves completely unlike the smooth-leafed modern kales promoted by the health food industry. Cold is essential to its character: below ten degrees, the plant converts starches to sugars and the bitterness retreats. The Tuscans understood this long before plant biochemistry could explain it — the tradition of waiting for the first frosts before harvesting cavolo nero is centuries old.`,
+    kitchen: `Strip the leaves from their central rib, tear them roughly, and braise them low and slow in good olive oil with a little garlic and a pinch of chilli. Nothing else is needed. The result after fifteen minutes is a dish of extraordinary depth and sweetness.
+
+By August in Nannup, after months of cool nights, the leaves will be at their most flavoursome. The plants will have darkened from blue-green to near-black, standing tall and architectural in the central section of the bed.`,
+    growing: `Sow seed March–May for winter harvest. Plant in rich soil in a sunny to lightly shaded position. Transplant at the 4-leaf stage, spacing 40–50cm apart. Water regularly but do not overwater. Harvest outer leaves as needed — the plant will continue producing through winter. Cold improves flavour dramatically; don't be deterred by the appearance of frost damage on outer leaves.`
+  },
+  4: {
+    name: `Kale 'Redbor'`,
+    latin: `Brassica oleracea 'Redbor'`,
+    qty: `4 plants`,
+    tag: null,
+    color: `#5a0f68`,
+    emoji: `🌱`,
+    oneliner: `Deeply frilled, intensely purple — cold turns it darker still. One of the most visually dramatic brassicas in cultivation.`,
+    origin: `Northern Europe · ancient lineage · modern selection for colour`,
+    history: `Kale is among the oldest of cultivated brassicas, grown across northern Europe since ancient times, long before the development of headed cabbages, cauliflower or broccoli. The Romans grew open-leafed brassicas very similar to modern kale, and it remained the dominant leafy vegetable of northern European peasant cooking through the medieval period.
+
+'Redbor' is a modern variety bred specifically for the intensity of its colour. The purple pigment comes from anthocyanins — the same compounds found in red wine and blueberries — and intensifies dramatically as temperatures drop, making August in Nannup the peak of both its colour and its ornamental value in the garden.`,
+    kitchen: `In the kitchen Redbor performs identically to other kales: excellent braised, stir-fried, or massaged raw with olive oil and lemon. Its flavour is slightly more robust and peppery than cavolo nero, standing up well to strong pairings such as chorizo, anchovies and blue cheese.
+
+The purple colour is water-soluble and will bleed into cooking liquid, tinting stocks, pastas and grains a beautiful deep pink. This can be used deliberately — a Redbor kale pasta or risotto has an extraordinary colour.`,
+    growing: `Sow March–May for winter colour. Transplant at 5–6 leaf stage, spacing 45cm apart. Prefers full sun and fertile, well-drained soil. The colour intensifies as temperatures drop — plants sown in March will be at their most purple by August. Harvest outer leaves regularly to encourage fresh growth from the centre. Extremely hardy and will survive Nannup's lightest frosts without damage.`
+  },
+  5: {
+    name: `Rainbow Chard 'Bright Lights'`,
+    latin: `Beta vulgaris subsp. cicla`,
+    qty: `4 in Bed 1, 3 in Bed 3`,
+    tag: `Beds 1 & 3`,
+    color: `#c07808`,
+    emoji: `🌈`,
+    oneliner: `A cultivated form of the sea beet — the same species as beetroot. Red, orange, gold and white stems from a single packet.`,
+    origin: `Mediterranean coast · wild sea beet domesticated in antiquity`,
+    history: `Three additional plants of rainbow chard are placed in the south section of Bed 3 to bridge visually between the beetroot and the peas climbing the arch. As chard and beetroot are the same species — divergent cultivated forms of the wild sea beet — the pairing is botanically as well as visually coherent. The same Mediterranean origins, the same earthy, mineral sweetness, the same response to cold-induced flavour development.
+
+In Bed 3 the chard serves a specifically visual purpose: the riot of coloured stems — red, orange, gold, white — holding the eye between the candy-stripe roots below the soil and the snow-white pea flowers on the arch above. At the table, chard stems and beetroot appear together naturally in warm grain salads, particularly in the North African tradition where both vegetables appear alongside spiced lamb or duck. See the full story in Bed 1.`,
+    kitchen: `The flavour is mild and slightly earthy, more delicate than spinach, with a pleasant mineral quality reminiscent of beetroot. Chard responds beautifully to butter, nutmeg and cream in a gratin; or to a bold, olive-oil-rich treatment with garlic, lemon and pine nuts in the southern Italian style.
+
+The coloured stems hold their colour reasonably well in the oven, making individual stems excellent roasted and presented as a side dish alongside fish or chicken.`,
+    growing: `Sow seed March–April or transplant seedlings in autumn. Space 30cm apart in fertile soil with consistent moisture. Harvest outer stems as needed, leaving the central crown to produce new growth. Both stems and leaves are edible but benefit from separate cooking times — stems first, leaves added in the final minutes. Will bolt to seed in spring heat; treat as an annual.`
+  },
+  6: {
+    name: `Leek 'Musselburgh'`,
+    latin: `Allium ampeloprasum`,
+    qty: `3 plants`,
+    tag: null,
+    color: `#3a6858`,
+    emoji: `🧅`,
+    oneliner: `A Victorian Scottish heritage variety named for a port town near Edinburgh. In continuous cultivation since the 1800s.`,
+    origin: `Musselburgh, Scotland · 19th century · ancient species`,
+    history: `The leek is one of the oldest cultivated vegetables in the world, grown in Mesopotamia and Egypt for at least four thousand years — it appears in Egyptian tomb paintings and is named in the Bible as one of the foods the Israelites missed from Egypt. It became the national symbol of Wales through a legend involving a sixth-century battle in which Welsh soldiers wore leeks in their caps to distinguish themselves from the enemy.
+
+The 'Musselburgh' variety takes its name from the Scottish port town near Edinburgh where it was developed in the nineteenth century and has been grown continuously ever since — one of the most enduring heritage vegetable varieties in cultivation anywhere. Its extraordinary cold-hardiness made it indispensable to Scottish kitchen gardens, where it stands in the ground through hard winters without deteriorating.`,
+    kitchen: `Leeks occupy a central place in French and British cooking that is often unappreciated. Poireaux vinaigrette — braised leeks served at room temperature with a sharp mustard dressing — is one of the great underrated pleasures of French bistro cooking.
+
+Leeks are also the base of vichyssoise, the essential allium in a proper cock-a-leekie soup, and the aromatic foundation of numerous braises and stews.`,
+    growing: `Sow seed February–April and transplant at pencil thickness, spacing 15–20cm apart in rows. Prefers rich, moisture-retentive soil in full sun. Earth up around the stems as they develop to increase the length of blanched white shaft. Harvest from June onward by lifting with a fork. Musselburgh is exceptionally frost-hardy and will stand in the ground through winter without deteriorating.`
+  },
+  7: {
+    name: `Calendula 'Indian Prince'`,
+    latin: `Calendula officinalis`,
+    qty: `Sown along bed edges`,
+    tag: `Edging · Beds 1 & 5`,
+    color: `#bf5a08`,
+    emoji: `🌸`,
+    oneliner: `The medieval pot marigold, used to colour broths and butters long before saffron was affordable. Edible petals, flowering all winter.`,
+    origin: `Mediterranean · cultivated since 12th century in monastery gardens`,
+    history: `Calendula has been cultivated since at least the twelfth century, grown in monastery physic gardens across medieval Europe for its medicinal properties and for its ability to flower through the coldest months. Its common name, pot marigold, is a corruption of 'Mary's gold', reflecting the medieval association of its golden flowers with the Virgin Mary, for whom it was grown as a devotional plant in countless monastic gardens.
+
+The variety 'Indian Prince' is among the finest of the species — deeply coloured in mahogany-orange with a dark centre, closer to burnt sienna than the flat yellow of common strains. It was developed in the twentieth century for the cut flower trade, where its unusual colouring commanded a premium.`,
+    kitchen: `The fresh petals appear on composed salads, garnishing ceviche and carpaccio, and in infused oils. Dried petals are ground into a powder used in pastry and pasta. The flavour is mild but present: faintly peppery, slightly bitter, with a resinous warmth.
+
+They are beautiful strewn across a finished dish just before serving — the deep orange against a dark plate has a visual effect entirely out of proportion to the effort involved. They flower prolifically all winter and require nothing from the gardener beyond the initial sowing.`,
+    growing: `Sow seed directly or in punnets from February–April. Thin to 20–25cm apart. Thrives in most soils in full sun. Deadhead spent flowers regularly to extend the season well into spring. Self-seeds freely — welcome volunteers wherever they appear. Drought-tolerant once established. In Nannup, will flower from June through to November with minimal attention.`
+  },
+  8: {
+    name: `Rhubarb`,
+    latin: `Rheum × hybridum`,
+    qty: `1 plant (existing)`,
+    tag: `Existing plant`,
+    color: `#880818`,
+    emoji: `🌿`,
+    oneliner: `Traded along the Silk Road as medicine worth more than cinnamon. Not eaten as food until the 18th century, when sugar became affordable.`,
+    origin: `China & Tibet · medicinal root for 2,000 years · arrived in Europe via Silk Road`,
+    history: `Rhubarb's origins lie deep in Chinese and Tibetan traditional medicine, where the dried root of wild Rheum palmatum was used as a powerful purgative for at least two thousand years. It arrived in Europe via the Silk Road and was, for centuries, traded as a dried medicinal root worth more by weight than cinnamon or saffron — its scarcity and the mystery of its origins gave it an almost legendary status in medieval European pharmacies.
+
+The plant itself was not grown in European gardens until the seventeenth century, and the practice of eating the leaf-stalks as food did not take hold until the eighteenth, when sugar became sufficiently inexpensive to counteract the stems' extreme acidity. The transition from medicine to food took barely a generation once sugar was affordable — by the early nineteenth century, forced rhubarb grown in heated sheds in Yorkshire had become one of the most eagerly anticipated flavours of the English winter.`,
+    kitchen: `Rhubarb occupies an unusual position in the kitchen — botanically a vegetable, culinarily almost always treated as a fruit. Its magnificent flavour comes from the tension between sharp organic acids and the sugars that transform them.
+
+It is among the finest companions to oily fish: a rhubarb and ginger sauce alongside mackerel or salmon has a cleansing, cutting quality that no citrus can quite replicate. At the festival the existing crown will be at full vigour — enormous red stems and massive leaves providing an unmistakable exclamation mark at the south end of the bed.`,
+    growing: `Plant crowns in autumn (March–April in Nannup) into deeply dug, well-manured soil. Space 90cm apart — crowns expand into large clumps over time. Do not harvest in the first year; allow the plant to establish. From year two, harvest stems when 25–30cm tall. Cut back spent foliage in autumn and top-dress with compost. The existing crown at 8 Dunnet Rd is already established and will produce vigorously.`
+  },
+  9: {
+    name: `Perennial Coriander`,
+    latin: `Eryngium foetidum`,
+    qty: `1 plant (existing)`,
+    tag: `Existing plant`,
+    color: `#18a028`,
+    emoji: `🌿`,
+    oneliner: `Called shado beni in Trinidad, culantro in Mexico. Identical flavour to annual coriander — but never bolts, never dies, returns every year.`,
+    origin: `Tropical Americas & Caribbean · spread to SE Asia via Spanish trade routes, 16th century`,
+    history: `Perennial coriander — also called culantro, long coriander, or shado beni in Trinidad — is entirely unrelated to common coriander despite sharing an almost identical flavour. It is native to the tropical Americas and the Caribbean, where it forms a fundamental component of the cooking of Trinidad and Tobago, Mexico, and across Southeast Asia, where it arrived with Spanish trade routes in the sixteenth century and became fully integrated into Vietnamese, Thai and Indonesian cooking.
+
+The plant is a member of the carrot family, Apiaceae — which also contains parsley, chervil, dill and fennel — a family with an extraordinary record of producing herbs whose volatile aromatic compounds have defined the cooking of every culture they have reached. Unlike its annual cousin, perennial coriander forms a low rosette that persists year after year, spreading slowly into a permanent clump.`,
+    kitchen: `In a garden designed to impress a chef, having a permanent, thriving patch of coriander that needs no seasonal management is a quiet but significant statement of horticultural sophistication.
+
+Use exactly as you would annual coriander: in Thai curry pastes, scattered over Vietnamese pho, blended into guacamole, or chopped into any dish where the clean, citrus-soapy note of coriander is needed.`,
+    growing: `Plant divisions in a sheltered, partially shaded position. Prefers consistently moist, humus-rich soil. Unlike annual coriander, performs best with some protection from the hottest afternoon sun. Harvest outer leaves regularly — this encourages compact bushy growth rather than the plant going to seed. Divide clumps every 2–3 years in autumn to maintain productivity. Frost-tender; protect in cold snaps.`
+  },
+  10: {
+    name: `Turmeric · Ginger · Galangal`,
+    latin: `Curcuma longa · Zingiber officinale · Alpinia galanga`,
+    qty: `Existing clumps (dormant August)`,
+    tag: `Dormant in August`,
+    color: `#b07808`,
+    emoji: `🫚`,
+    oneliner: `Three ancient Asian rhizomes sleeping underground. Ginger on the Silk Road by the first century. Galangal — the secret of Tom Kha Gai.`,
+    origin: `India, China & SE Asia · in cultivation for 3,000+ years`,
+    history: `These three rhizomes form the ancient aromatic foundation of South and Southeast Asian cooking. Ginger has been in continuous cultivation in India and China for at least three thousand years, traded to the Mediterranean via the Silk Road by the first century — the Romans used it extensively. Turmeric shares a similarly ancient Indian provenance: the Vedic texts mention it, Buddhist monks used it to dye their robes, and Ayurvedic medicine has prescribed it for thousands of years as an anti-inflammatory and digestive tonic.
+
+Galangal, the most elusive of the three to Western cooks, is native to Java and has been cultivated across Southeast Asia for centuries. Its character is related to but distinctly different from ginger — more resinous, piney and medicinal. In August all three will be dormant in the ground, their above-ground foliage having died back, each clump labelled with a handwritten slate tag.`,
+    kitchen: `Ginger: peel and grate into stir-fries, steep in hot water for tea, candy for desserts, pickle for sushi. Turmeric: fresh root grated into curries, rice, golden milk — far more vibrant than the dried powder. Galangal: the most aromatic of the three, slightly piney and medicinal, used in Thai curry pastes and coconut-based soups where its distinctive resinous note is irreplaceable.
+
+The fact that these building blocks of Asian cooking are sleeping underground beneath white violas in a garden in Nannup is, for a chef of any curiosity, an extraordinarily compelling provenance story.`,
+    growing: `Plant rhizomes in spring (October–November) once soil has warmed above 20°C. Space 30–40cm apart in rich, moisture-retentive soil in full sun or light shade. Water generously through summer. Foliage will die back after the first cool nights in autumn — this is normal. Harvest rhizomes from autumn onward by lifting carefully with a fork. Replant a portion of each clump immediately to maintain the bed.`
+  },
+  11: {
+    name: `Red Giant Mustard`,
+    latin: `Brassica juncea 'Red Giant'`,
+    qty: `3–4 plants`,
+    tag: null,
+    color: `#700830`,
+    emoji: `🌿`,
+    oneliner: `Five thousand years of cultivation across Central Asia, India and Japan. The largest and most dramatic plant in Bed 2.`,
+    origin: `Central Asia & Himalayan foothills · spread to China, Japan & India · 3,000+ BC`,
+    history: `The mustards of the Brassica juncea group originated in Central Asia and the Himalayan foothills, where they have been cultivated for at least five thousand years. They spread east into China and Japan, where they evolved into a vast family of varieties central to East Asian pickling and fermenting traditions, and west into the Mediterranean and India. The word mustard comes from the Latin mustum ardens — burning must — from the Roman practice of mixing crushed seeds with unfermented grape juice.
+
+'Red Giant' is a Japanese selection grown widely across East Asia for its dramatic visual presence. The variety arrived in Western seed catalogues in the late twentieth century, initially as an ornamental, before its culinary qualities became better understood outside its native region.`,
+    kitchen: `Young leaves make a confrontational and excellent salad green — the peppery heat from glucosinolate compounds is present and energising. Older leaves are best stir-fried quickly or used as a wrapper for steamed fish or pork.
+
+The plant can reach 90cm across by August and will likely be the most visually dominant plant in Bed 2 — a great burgundy cloud of frilled leaves that will draw attention from twenty metres away.`,
+    growing: `Sow seed March–May directly where it is to grow, or transplant at the 3–4 leaf stage spacing 45–60cm apart. Prefers full sun and fertile soil with consistent moisture. Harvest outer leaves as needed from 6 weeks onward. Extremely fast-growing — plants can reach full size in 8–10 weeks from transplant. Will bolt to flower in late spring as temperatures rise; treat as an annual and resow each autumn.`
+  },
+  12: {
+    name: `Tatsoi`,
+    latin: `Brassica rapa subsp. narinosa`,
+    qty: `4 plants`,
+    tag: null,
+    color: `#144820`,
+    emoji: `🥬`,
+    oneliner: `A perfectly flat geometric rosette of dark spoon-shaped leaves. Cold-hardy Chinese brassica, the restaurant micro-green of choice.`,
+    origin: `China · centuries of cultivation · Japanese name suggests refinement there too`,
+    history: `Tatsoi forms one of the most geometrically beautiful rosettes in the vegetable garden — a perfectly flat disc of dark green, spoon-shaped leaves radiating symmetrically from the centre. It has been cultivated in China for centuries and is closely related to pak choi, but developed specifically for cold-weather production, tolerating temperatures that would kill most Asian greens. The word tatsoi is Japanese, suggesting a period of cultivation and refinement there before the variety stabilised in its current form.
+
+Its visual quality is a product of growing conditions as much as genetics. Cold, consistent moisture and adequate spacing allow each plant to express its full geometric character; crowded or stressed plants lose the flat, disc-like form entirely. Given the right conditions, a mature tatsoi rosette in August is a small, self-contained marvel of botanical symmetry.`,
+    kitchen: `The flavour is delicate — mild, slightly sweet, with a very faint brassica bitterness — making it one of the most palatable of its family when eaten raw. In salads it functions as a sophisticated substitute for baby spinach, with more structural interest and a cleaner flavour.
+
+The plants in August will have expanded to their maximum diameter — up to 30cm — and will look extraordinary in the bed, their perfect mathematical symmetry catching the morning light.`,
+    growing: `Sow seed March–May and transplant at 3–4 leaf stage, spacing 25–30cm apart. Prefers partial shade — it is one of the few brassicas that actually performs better away from full sun in Nannup's climate. Keep consistently moist. The rosette form is best appreciated when plants are given enough space to flatten fully. Harvest outer leaves or the entire rosette. Withstands light frosts and is one of the most cold-tolerant of the Asian brassicas.`
+  },
+  13: {
+    name: `Red Pak Choi 'Red Choi'`,
+    latin: `Brassica rapa var. chinensis`,
+    qty: `3 plants`,
+    tag: null,
+    color: `#580858`,
+    emoji: `🥬`,
+    oneliner: `Six thousand years of cultivation in China. The mildest and most versatile of the Asian brassicas. Purple stems that hold their colour when cooked.`,
+    origin: `China · one of the oldest cultivated vegetables · 4,000+ BC`,
+    history: `Pak choi has been grown in China for more than six thousand years — one of the oldest vegetables in continuous cultivation. It features in ancient Chinese agricultural texts and has been a staple of the Cantonese kitchen since at least the Han Dynasty. The plant belongs to a vast and ancient family of East Asian brassicas that Europeans barely knew existed until the nineteenth century.
+
+The red form 'Red Choi' was selected from the natural colour variation within the species for intensely purple-flushed stems and dark leaves. The purple pigment is produced by anthocyanins and is concentrated primarily in the stems and leaf undersides, giving the plant a two-toned quality that is particularly striking when backlit. The variety became widely available in Western seed catalogues in the 1990s, initially prized more for ornamental value than culinary use.`,
+    kitchen: `Excellent stir-fried whole at high heat with nothing but oyster sauce and a little ginger. Equally good braised slowly in chicken stock. Superb raw in a Vietnamese-style salad with shredded green mango and a fish sauce dressing.
+
+The purple stems hold their colour remarkably well even under considerable heat. Halve the heads lengthways, char-grill for two minutes a side, and dress with sesame oil, soy and a little chilli. Done.`,
+    growing: `Sow seed March–May and transplant at 3–4 leaf stage, spacing 25cm apart. Grows in sun or partial shade in fertile, moisture-retentive soil. Harvest as baby plants (12cm) for the most tender eating, or allow to develop full heads. Succession-sow every 4 weeks for a continuous supply. One of the quickest brassicas to mature — often ready within 6 weeks of transplanting.`
+  },
+  14: {
+    name: `Komatsuna 'Red'`,
+    latin: `Brassica rapa var. perviridis`,
+    qty: `3 plants`,
+    tag: null,
+    color: `#500a18`,
+    emoji: `🥬`,
+    oneliner: `Named by a Japanese Shogun in the 1700s after a river where he found it growing during a falconry outing. Used in Tokyo's New Year soup ever since.`,
+    origin: `Komatsugawa district, Tokyo · named by Shogun Tokugawa Yoshimune, early 18th century`,
+    history: `Komatsuna — Japanese mustard spinach — takes its name from the Komatsugawa district of Tokyo, where the Shogun Tokugawa Yoshimune is said to have come across it growing during a falconry outing in the early eighteenth century. He named it after the nearby river and decreed it should be used in the traditional New Year ozoni soup — a custom that persists in the Tokyo region to this day.
+
+The Red form selects for copper-burgundy pigmentation over dark green. A member of the turnip branch of the brassica family and closely related to pak choi, it has been a daily vegetable in Japanese households for centuries. Its long history of cultivation across the full range of Japanese climates speaks to an adaptability that makes it one of the most reliable winter greens for kitchen gardens beyond its country of origin.`,
+    kitchen: `A faint peppery warmth becomes more pronounced when raw. It wilts beautifully under high heat and is ideal for quick stir-frying, blanching and dressing with sesame oil and soy, or pickling briefly in a light brine.
+
+Japanese home cooks use it almost daily, the way Italian cooks use cavolo nero — as an everyday reliable green that is nonetheless capable of something excellent when given proper attention.`,
+    growing: `Sow seed March–May and transplant at 3–4 leaf stage, spacing 25–30cm apart. Sun or partial shade; prefers consistently moist, fertile soil. Harvest outer leaves from 5 weeks onward or cut the whole plant at the base and allow to resprout. Extremely cold-hardy and will withstand Nannup's coldest nights without damage. One of the most reliable and productive winter greens for the kitchen garden.`
+  },
+  15: {
+    name: `Garlic Chives (Nira)`,
+    latin: `Allium tuberosum`,
+    qty: `1 pot`,
+    tag: null,
+    color: `#406010`,
+    emoji: `🌿`,
+    oneliner: `Grown in East Asia for 2,000 years. Flat-leaved, garlic-flavoured, perennial. The gyoza herb — essential in dumplings across Asia.`,
+    origin: `China & Japan · 2,000+ years of continuous cultivation`,
+    history: `Garlic chives — known as nira in Japanese, jiǔcài in Chinese — have been cultivated in East Asia for more than two thousand years, appearing in Chinese herbal medicine texts as early as the third century and in classical Japanese agricultural writings from the ninth. Unlike common chives, they have flat leaves rather than hollow round ones, and a pronounced mellow garlic character that intensifies with cooking rather than dissipating.
+
+The plant is a true perennial, returning each year without attention beyond occasional division. It produces elegant white star-shaped flowers in late summer that are ornamental as well as useful — the flowering stems are themselves a distinct ingredient in East Asian cooking, prized at the bud stage.`,
+    kitchen: `In Japanese cooking, nira appear in gyoza dumplings, in nikujaga, and scattered raw over cold soba noodles. In Korean cuisine they feature in buchujeon pancakes and in kimchi. In Chinese cooking they stir-fry beautifully with pork, tofu or egg.
+
+A chef with any affinity for Asian technique will be delighted to see them growing — they are rarely available in Australian markets.`,
+    growing: `Divide established clumps in autumn or spring, spacing 20–25cm apart. Prefers full sun and well-drained, moderately fertile soil. Water regularly but allow to dry slightly between waterings — they are more drought-tolerant than common chives. Harvest leaves from 5cm above the base to encourage regrowth. Remove flower stalks promptly to prevent self-seeding throughout the garden. Divide every 3 years to prevent congestion.`
+  },
+  16: {
+    name: `Viola — white`,
+    latin: `Viola × wittrockiana`,
+    qty: `8 plants`,
+    tag: `Over dormant rhizomes`,
+    color: `#c8c4a0`,
+    emoji: `🌸`,
+    oneliner: `Planted over the sleeping rhizomes as a winter carpet — a theatrical gesture of seasonal storytelling. Edible petals.`,
+    origin: `Garden hybrid · Viola species native to Europe & Asia`,
+    history: `Violas and pansies are garden hybrids developed primarily in England in the early nineteenth century from crosses between several European wild species. In Bed 2, the white violas serve a specific narrative purpose: planted over the dormant turmeric, ginger and galangal rhizomes, they transform a potential winter gap into a deliberate seasonal story.
+
+White flowers above, extraordinary Asian roots below — every visitor who reads the slate labels will understand immediately.`,
+    kitchen: `Viola and pansy petals are edible — mild, very slightly grassy, with no significant flavour of their own, but with extraordinary visual value as garnish.
+
+The white form is used in pastry for crystallised flower decorations: petals brushed with egg white, dusted with caster sugar and allowed to dry create decorations of remarkable fragility and beauty for cakes and petit fours. They are also scattered raw over summer salads and floated in cocktails.`,
+    growing: `Plant seedlings or punnets in autumn, spacing 15–20cm apart directly over the dormant rhizomes. Prefers well-drained soil and full sun to light shade. Water regularly through winter. The plants will naturally die back as temperatures warm in spring, at which point the rhizomes below will begin to sprout. No special care needed — they are temporary winter cover rather than a long-term planting.`
+  },
+  17: {
+    name: `Yakumo Giant Pea`,
+    latin: `Pisum sativum 'Yakumo'`,
+    qty: `6 plants on arch`,
+    tag: `Arch · East side Bed 3`,
+    color: `#509830`,
+    emoji: `🫛`,
+    oneliner: `A Japanese heirloom snow pea with extraordinary flat pods up to 15cm long and beautiful purple flowers — from a tradition stretching back to the Edo period.`,
+    origin: `Japan · heirloom variety · East Asian flat-podded pea tradition dating to 7th–8th century`,
+    history: `Yakumo is a Japanese heirloom snow pea — one of the oldest and largest-podded varieties in cultivation. Snow peas were introduced to Japan as early as the seventh and eighth centuries, and during the Edo period from 1603 to 1868 they became extensively cultivated and consumed as a staple of Japanese cooking. The Yakumo variety emerged from this long tradition, prized for the extraordinary size of its flat pods — up to 15cm long — and for its vigorous climbing habit.
+
+The variety is open-pollinated heirloom, meaning it has been saved and passed down through generations of growers rather than produced by commercial plant breeding. In Japan, snow peas are known as kinusaya — literally 'silk pod' — a name referring to the glossy sheen of the pods and the silken sound they make when rubbed together, said to resemble the rustle of a silk kimono.
+
+The plant produces beautiful purple and pink flowers before the pods develop — making the arch visually compelling from July onward, well before the harvest begins in August.`,
+    kitchen: `The pods are eaten whole while flat, before the seeds swell inside — the same principle as any snow pea, but on a dramatically larger scale. A single Yakumo pod laid across a composed plate is a statement in itself. Blanch briefly and toss with butter and ginger, or slice diagonally into a stir-fry. The thick, sweet walls hold their texture better than smaller varieties.
+
+Pick every two to three days to keep the plant producing prolifically. The experience of reaching up to the arch and eating a pod seconds after picking — still warm from the winter sun — is one of the most direct expressions of what a kitchen garden visit is for.`,
+    growing: `Sow seed March–April into moist soil at the base of the arch supports. Sow 3cm deep, spacing 10cm apart. Keep consistently moist during germination (10–14 days). The plant will reach 2–2.5m so ensure supports are adequate. Harvest pods while flat and before the seeds swell inside — Yakumo pods can reach 15cm so check regularly. Pick every 2–3 days to keep the plant producing prolifically.`
+  },
+  18: {
+    name: `Beetroot 'Chioggia'`,
+    latin: `Beta vulgaris 'Chioggia'`,
+    qty: `9 plants`,
+    tag: null,
+    color: `#aa0f0f`,
+    emoji: `🫀`,
+    oneliner: `Slice it across and find perfect candy stripes — pink and cream, like a geological sunset. Heritage of the Venetian lagoon since the 1840s.`,
+    origin: `Chioggia, Venetian lagoon, Italy · first recorded in seed catalogues c.1840`,
+    history: `The Chioggia beetroot takes its name from the fishing town of Chioggia in the Venetian lagoon south of Venice, where it has been grown continuously since at least the nineteenth century and probably much longer. It belongs to the old Italian tradition of vegetable breeding that prioritised visual character, flavour and regional identity over the uniformity demanded by commercial agriculture.
+
+The candy-stripe pattern — perfectly concentric rings of deep pink-red alternating with pale cream — is produced by the differential distribution of two pigment compounds, betacyanins and betaxanthins, within the root tissue. The pattern is present from seedling stage but becomes most dramatic in mature roots at harvest, making slicing the root one of the small revelations of the kitchen garden year.`,
+    kitchen: `Unlike other beetroot varieties, Chioggia does not bleed aggressively when cut — making it ideal for raw applications in composed salads, carpaccio, and as garnish. The flavour is sweet, mild and earthy, the flesh denser and less fibrous than commercial varieties.
+
+Roasted whole and then sliced for presentation, it is one of the most visually arresting vegetables that can be put on a plate. Serve with whipped goat's cheese, toasted walnuts and a drizzle of good aged balsamic.`,
+    growing: `Sow seed March–June directly or in punnets, thinning to 10cm apart. Prefers deep, loose, stone-free soil for good root development. Keep consistently moist — irregular watering causes the roots to split or develop a coarser texture. Harvest from 7–8 weeks when roots are 5–8cm in diameter for the best flavour and most dramatic candy-stripe pattern. Larger roots become woody and the stripe pattern less defined.`
+  },
+  19: {
+    name: `Italian Giant Parsley`,
+    latin: `Petroselinum crispum var. neapolitanum`,
+    qty: `2 plants`,
+    tag: null,
+    color: `#206018`,
+    emoji: `🌿`,
+    oneliner: `The Romans used it; the Victorians preferred the curly form; serious cooks have been correcting that mistake ever since.`,
+    origin: `Sardinia & central Mediterranean · in cultivation for 2,000+ years`,
+    history: `Parsley is native to the central Mediterranean — Sardinia and possibly Greece — and has been in cultivation for more than two thousand years. The ancient Greeks considered it a plant of death and funeral rites, associated with the underworld and used to garland athletes at the Nemean Games. It was the Romans who transferred it firmly into the domain of cooking, and it has remained there ever since.
+
+Both the flat-leaf and curly forms have existed since antiquity. The curly form gained ascendancy in England and France during the Victorian era because it kept its shape better as a decorative plate garnish — a triumph of appearance over flavour that professional kitchens perpetuated through the twentieth century until the revival of interest in flavour-forward cooking restored the flat-leaf form to its rightful place.`,
+    kitchen: `The Italian flat-leaf form is simply superior in every culinary respect: the flavour is cleaner, more complex, more robustly parsley-like, with grassy, slightly peppery notes that the curly form barely possesses.
+
+It is the aromatic base of gremolata (with lemon and garlic), the essential component of salsa verde, and the garnish that finishes a proper French persillade. Chopped raw and mounded on top of a roasted bone marrow, there is no substitute.`,
+    growing: `Sow seed March–June in a sunny position or start in punnets and transplant at 5cm. Space final plants 20–25cm apart. Slow to establish from seed — allow 3 months before expecting substantial harvests. Prefers rich, well-drained soil with consistent moisture. Harvest outer stems regularly from the base. A biennial that will flower and set seed in its second year — collect seed for the following season.`
+  },
+  40: {
+    name: `Red Orach`,
+    latin: `Atriplex hortensis var. rubra`,
+    qty: `1 plant`,
+    tag: `South end · Bed 1`,
+    color: `#8a1848`,
+    emoji: `🌿`,
+    oneliner: `A close relative of quinoa — fast-growing, deeply burgundy-red, architectural and edible at every stage. Direct-sown now for a bold August display.`,
+    origin: `Central Asia and Europe · cultivated since antiquity · once a staple before spinach displaced it`,
+    history: `Red orach — mountain spinach, or in French arroche — has been cultivated since antiquity across Europe and Central Asia, where it was a staple leaf vegetable before spinach gradually displaced it from the sixteenth century onward. It belongs to the same family as spinach, beetroot, chard and quinoa — a group of plants domesticated across widely separated regions that share the same botanical tribe and similar nutritional profiles.
+
+The red form selects for the anthocyanin pigmentation that suffuses the leaves and stems in deep burgundy-red. It grows rapidly in cool conditions, making it one of the most reliable fast-establishment plants for a winter kitchen garden, and reaches 60–90cm with an upright, arrow-shaped habit that provides height without the horizontal spread of a larger perennial.`,
+    kitchen: `Young leaves are mild and slightly earthy — pleasant raw in salads, where the deep red colour is the main event. A handful of red orach leaves scattered through a green salad transforms it visually; the colour holds well even after dressing. Mature leaves wilt beautifully and can be used anywhere spinach or chard would be: sautéed in butter, folded into a frittata, stirred through pasta.
+
+The stems can be pickled briefly in light vinegar brine, which turns them a vivid pink. The seed heads, when they develop, are edible and can be used like quinoa — a close botanical relative. For Guy Jeffreys, the visual impact of the raw leaf on a composed plate is its most immediate contribution.`,
+    growing: `Direct sow now in March at the south end of Bed 1. Sow seed 1cm deep and thin to 30cm spacing once established. Germinates in 10–14 days in cool soil. Grows rapidly in cool autumn conditions — one of its strengths. By August expect plants at 60–90cm, upright and deeply coloured. Harvest outer leaves continuously to extend the productive period and prevent premature bolting.`
+  },
+  21: {
+    name: `Viola 'Sorbet'`,
+    latin: `Viola × wittrockiana 'Sorbet'`,
+    qty: `6 plants`,
+    tag: `Edging · Bed 3`,
+    color: `#5820a0`,
+    emoji: `🌸`,
+    oneliner: `The Victorian pansy obsession meets a modern variety bred purely for cold-season display. Purple, yellow and white — edible petals.`,
+    origin: `Garden hybrid · Victorian England · Viola tricolor as wild ancestor`,
+    history: `Violas and pansies are garden hybrids developed primarily in England in the early nineteenth century. The 'Sorbet' series is a modern development bred specifically for cold-season performance — smaller flowers than show pansies, but extraordinarily free-flowering through winter and early spring.
+
+The wild ancestor, Viola tricolor or heartsease, has been used medicinally and symbolically across Europe for centuries. In the language of flowers it represented loving thoughts.`,
+    kitchen: `The petals of Viola Sorbet are edible — mild, slightly grassy, with no significant flavour of their own, but with extraordinary visual value as garnish.
+
+In Bed 3 they edge the whole bed in purple, yellow and white, framing the Chioggia beetroot above and the Yakumo peas climbing the arch — a triptych of colour that has been deliberately composed. Crystallised viola petals are a classic fine pastry decoration.`,
+    growing: `Plant seedlings in autumn, spacing 15–20cm apart along bed edges. Prefers full sun and well-drained soil. Deadhead spent flowers regularly to extend flowering through winter and spring. Tolerates light frosts. In Nannup's mild climate will flower from May through October with minimal attention. Like all violas, they self-seed modestly — welcome volunteers in cracks and edges throughout the garden.`
+  },
+  22: {
+    name: `Purple Podded Pea`,
+    latin: `Pisum sativum 'Purple Podded'`,
+    qty: `6 plants on arch`,
+    tag: `Arch · East side Bed 4`,
+    color: `#400f90`,
+    emoji: `🫛`,
+    oneliner: `Known in European gardens since the 17th century. Deep violet pods hanging from the arch — with perfectly normal green peas inside.`,
+    origin: `Europe · known since 17th century · anthocyanin colour form of garden pea`,
+    history: `Purple-podded peas represent one of the oldest colour forms of the garden pea, known in European gardens since at least the seventeenth century and depicted in botanical illustrations of the period. The purple colouration is produced by anthocyanins and is expressed only in the pod itself, not in the seeds within — a fact that surprised gardeners for generations before plant biochemistry explained it.
+
+They were once widely grown across European kitchen gardens for both decorative and culinary purposes before the homogenisation of commercial pea breeding replaced all such diversity with the uniform green pod. Their survival is owed to seed-saving networks that maintained them through the decades when no commercial grower stocked them.`,
+    kitchen: `The pods shell to reveal perfectly normal green peas inside — the purple pigment does not penetrate the seeds — and the flavour is identical to good garden peas: sweet, starchy, fresh. They can also be eaten whole as a snap pea when very young.
+
+The visual contrast between these deeply purple pods on the Bed 4 arch and the giant Yakumo pods on the adjacent Bed 3 arch is deliberate — stand at the junction between the two beds and look north: one arch deep violet, one laden with enormous flat pods, both loaded with food.`,
+    growing: `Sow seed April–May at the base of arch supports, 3cm deep, spacing 10cm apart. Keep consistently moist during germination. Provide wire or string support. The purple colouring develops most intensely in cool conditions — August will be the peak. Harvest pods when plump but before the seeds fully harden inside for the sweetest flavour. Shell and use immediately or blanch and freeze.`
+  },
+  23: {
+    name: `Lettuce 'Forellenschluss'`,
+    latin: `Lactuca sativa 'Forellenschluss'`,
+    qty: `2 plants`,
+    tag: null,
+    color: `#7a5830`,
+    emoji: `🥗`,
+    oneliner: `'Trout's back' in Austrian German — the leaves splashed burgundy-red like a brown trout. A heritage variety saved by home gardeners from disappearing forever.`,
+    origin: `Austria · heritage variety in continuous cultivation for 100+ years`,
+    history: `The name Forellenschluss means 'trout's back' in Austrian German, describing precisely what the lettuce looks like: a loose-headed romaine type, its bright green leaves heavily splashed and spotted with burgundy-red markings that exactly mimic the colouring of a brown trout. It has been grown in Austrian kitchen gardens for well over a century and was brought to the United States in the 1990s by Seed Savers Exchange, where it became one of the celebrated heritage lettuces of the American heirloom revival.
+
+Its survival through the twentieth century is owed entirely to home gardeners and seed-saving networks who refused to let it disappear. The variety received no commercial support whatsoever during the period when most heritage vegetables were lost — it survived purely through informal exchange of seed between gardeners who valued its extraordinary appearance.`,
+    kitchen: `In flavour it is excellent — mild but present, with a slight buttery richness in the inner leaves and more texture in the outer. Simply torn, dressed with a sharp vinaigrette and laid on the plate, the mottled pattern of each leaf performs better than any garnish.
+
+The contrast of the deep red flecks against the pale heart leaves is at its most dramatic in cool winter conditions — exactly the state this bed will present them in for the festival.`,
+    growing: `Sow seed March–May in punnets and transplant at 4–5 leaf stage, spacing 25–30cm apart. Prefers cool conditions and partial shade in Nannup — full sun in August is manageable but will accelerate bolting as temperatures rise in spring. Keep consistently moist. The distinctive spotting intensifies in cool weather. Harvest outer leaves as needed or take the whole head. Will bolt to flower in October.`
+  },
+  24: {
+    name: `Lettuce 'Rouge d'Hiver'`,
+    latin: `Lactuca sativa 'Rouge d'Hiver'`,
+    qty: `2 plants`,
+    tag: null,
+    color: `#682010`,
+    emoji: `🥗`,
+    oneliner: `'Red of Winter' — French heritage romaine from the 19th century, bred specifically for cold. The name alone is a conversation piece.`,
+    origin: `France · 19th century · Loire and Île-de-France market garden tradition`,
+    history: `Rouge d'Hiver — Red of Winter — is one of the oldest identified heirloom lettuces still in cultivation, appearing in French seed catalogues from the nineteenth century as a variety bred for cold-season growing in the market gardens of the Loire and Île-de-France regions. Its survival is owed to the French market garden tradition, which maintained far greater varietal diversity than the equivalent British or American commercial systems through the period of industrial agricultural consolidation.
+
+It forms upright romaine heads with deep bronze-red outer leaves that deepen further as temperatures drop — the colour at its most saturated in the coldest weeks of winter — and pale inner leaves that blanch naturally as the head develops. This contrast between the deep outer leaves and the pale interior is one of its defining visual qualities, distinguishing it immediately from the uniform colouring of modern red lettuces.`,
+    kitchen: `The flavour is fuller and slightly more bitter than modern soft lettuces — more characteristic of what lettuce actually tastes like when grown in cold conditions and allowed to develop properly.
+
+In French cuisine it appears most naturally in the classic salade composée of bistro cooking: torn leaves, lardons, a poached egg and a warm vinegar dressing poured over at the table so that it just wilts the outer leaves while the inner remain crisp.`,
+    growing: `Sow seed March–May in punnets and transplant at 4–5 leaf stage, spacing 25–30cm apart. The deep red colouring develops most intensely in cool conditions — plants started in March will be at peak colour by August. Prefers full sun in winter and tolerates partial shade. Keep consistently moist. More bolt-resistant than many heritage lettuces; will stand in good condition well into October in Nannup.`
+  },
+  25: {
+    name: `Spinach 'Bloomsdale'`,
+    latin: `Spinacia oleracea 'Bloomsdale'`,
+    qty: `3 plants`,
+    tag: null,
+    color: `#143810`,
+    emoji: `🥬`,
+    oneliner: `Persian in origin, named for a Philadelphia seed company in 1820. Deeply crinkled leaves that trap dressings. The correct spinach for épinards en branches.`,
+    origin: `Persia (Iran) · named for Bloomsdale Farm, Philadelphia, USA · c.1820`,
+    history: `Spinach is native to ancient Persia — modern Iran — and was domesticated there before spreading to China via the Silk Road by the seventh century, where it is still sometimes called Persian greens, and to the Arab world and then medieval Europe through Arab traders by the eleventh century. It was a staple of medieval European monastery gardens, valued for its rapid growth in exactly the cool, damp seasons when other vegetables were scarce.
+
+'Bloomsdale Longstanding' is an American heritage variety dating from around 1820, named for the Bloomsdale Farm seed company in Pennsylvania that introduced it. It is a savoy type — meaning the leaves are heavily crinkled and blistered rather than flat — developed for cold-weather production and for a flavour depth that the smooth-leafed commercial varieties bred for shelf life entirely lack.`,
+    kitchen: `The crinkled leaf traps dressings beautifully and has more presence in a salad than flat-leafed varieties. Wilted in butter with a scrape of nutmeg, or formed into a gratin with cream and a crisp cheese crust, it performs with quiet authority.
+
+It is also the correct spinach for a proper épinards en branches — the French bistro side dish of whole-leaf spinach barely wilted and served with just butter, salt and pepper. A dish so simple that only the quality of the spinach determines whether it is extraordinary or forgettable.`,
+    growing: `Sow seed March–June in punnets and transplant at 3–4 leaf stage, spacing 20–25cm apart. The crinkled savoy leaves prefer cool, moist conditions — consistent watering is essential for tender leaves. Grows in full sun or partial shade. Harvest outer leaves from 6 weeks onward; the plant will continue producing for several months. In Nannup, will begin to bolt as days lengthen in September — harvest the crown at this point.`
+  },
+  26: {
+    name: `Chervil`,
+    latin: `Anthriscus cerefolium`,
+    qty: `2 plants`,
+    tag: null,
+    color: `#78aa30`,
+    emoji: `🌿`,
+    oneliner: `One of the four fines herbes of French cuisine. A flavour impossible to describe — faint anise, grassy sweetness — that vanishes entirely with heat.`,
+    origin: `Southwest Asia · Roman cultivation · one of the canonical fines herbes of French cooking`,
+    history: `Chervil is among the most underused of the classical French herbs in contemporary cooking, which makes its presence in this garden a quiet but significant statement. It was widely cultivated across ancient Rome — Pliny the Elder recommended it as a spring tonic — and appears continuously in European cooking records through the medieval period and into the great codification of French classical cuisine, where it became one of the four canonical fines herbes alongside parsley, tarragon and chives.
+
+Its flavour is subtle and essentially irreplaceable: a faint anise note, reminiscent of tarragon but more delicate, overlaying a grassy herbal sweetness with no bitterness whatsoever. It is one of the few herbs for which there is genuinely no adequate substitute, and the dried form is effectively worthless — chervil must always be used fresh.`,
+    kitchen: `This means it must always be added at the absolute last moment — ideally raw. A braised beef cheek finished with a handful of fresh chervil at the table; a cold crab salad where the herb's anise note lifts the sweetness of the meat; a simple omelette scattered with chervil just before folding — these are among the finer expressions of French domestic cooking, and they are impossible without the fresh herb.
+
+It thrives in the afternoon shade of Bed 4, which is exactly the condition it prefers.`,
+    growing: `Sow seed in punnets March–May and transplant to a shaded or partially shaded position spacing 20cm apart. Unlike most herbs, chervil genuinely dislikes full sun and will bolt rapidly in warm conditions — the afternoon shade of Bed 4 is ideal. Keep soil consistently moist. Harvest leaves before the plant begins to flower; once it bolts the flavour diminishes significantly. Succession-sow every 6 weeks for a continuous supply.`
+  },
+  27: {
+    name: `French Sorrel`,
+    latin: `Rumex scutatus`,
+    qty: `2 plants`,
+    tag: null,
+    color: `#608808`,
+    emoji: `🌿`,
+    oneliner: `An arresting sourness that cuts through richness like nothing else. Michel Guérard's sorrel sauce for salmon became iconic in nouvelle cuisine.`,
+    origin: `Mountainous central & western Europe · in French royal kitchens since 14th century`,
+    history: `Sorrel has been cultivated in France since at least the fourteenth century, when it appears in the accounts of Charles V's royal kitchen in Paris. It belongs to the dock family, Polygonaceae, and its distinctive sharp acidity comes from oxalic acid — the same compound responsible for the sourness of rhubarb and wood sorrel. The buckler-leaf form, Rumex scutatus, has small shield-shaped leaves with a more refined, less harsh acidity than common sorrel, making it the preferred culinary variety of the French kitchen.
+
+As a perennial it will return year after year without intervention, gradually expanding into a permanent clump. The great chef Michel Guérard's championing of sorrel in the 1970s — as part of the nouvelle cuisine movement's rediscovery of undervalued garden vegetables — restored its reputation after a period of post-war neglect.`,
+    kitchen: `The flavour is arrestingly sour — a clean, bright, almost citric acidity from oxalic acid — and this is precisely its power. Sorrel sauce, the classic French accompaniment to salmon and oily fish, works because the acidity cuts through richness the way nothing else can.
+
+Raw in salads, the young leaves add an electric jolt of sourness to otherwise bland combinations. The shield-shaped leaves of French sorrel are smaller and more refined than common sorrel, allowing them to be left whole on the plate as an elegant garnish.`,
+    growing: `Plant divisions or bare-root plants in autumn, spacing 30cm apart. Prefers partial shade and consistently moist, humus-rich soil. Once established, sorrel is essentially permanent and requires very little attention. Cut back flower stalks promptly to keep the plant in leaf production. Divide clumps every 3–4 years to prevent congestion. In hot dry spells the leaves may become tough — cut back hard and allow to resprout with the next rains.`
+  },
+  28: {
+    name: `Pansy — deep purple`,
+    latin: `Viola × wittrockiana`,
+    qty: `6 plants`,
+    tag: `Edging · Bed 4`,
+    color: `#200530`,
+    emoji: `🌸`,
+    oneliner: `Near-black edging to the silver-rib lettuces. The darkest ornamental flower in the garden — edible, and arresting against pale plates.`,
+    origin: `Garden hybrid · Victorian England · heartsease (Viola tricolor) as ancestor`,
+    history: `Deep purple to near-black pansies represent the furthest extreme of Victorian pansy breeding, where growers competed to produce flowers with the darkest, most velvety colouring.
+
+In Bed 4, the near-black pansies are chosen specifically to maximise the visual contrast with the silver and bronze-red ribs of the heritage lettuces. The effect — very dark edges, very pale hearts — mirrors the palette of the bed itself.`,
+    kitchen: `Pansy petals are edible — mild and very slightly grassy, with no significant flavour of their own. Their value in the kitchen is entirely visual: the near-black petals against a white plate, scattered over a pale cream soup, or placed on a dessert, are one of the most arresting garnishes available to a chef working with garden-grown flowers.
+
+Crystallised in egg white and caster sugar, the deep purple petals become exquisite decorations for celebration cakes.`,
+    growing: `Plant seedlings in autumn, spacing 15–20cm apart along bed edges. Prefers full sun and well-drained soil. The near-black colouring is most intense in cool weather — August is the peak. Deadhead spent flowers regularly. Tolerates light frosts. Like all pansies, will begin to decline in quality as temperatures rise in October; replace with summer annuals at that point.`
+  },
+  29: {
+    name: `Sugar Snap Pea 'Cascadia'`,
+    latin: `Pisum sativum 'Cascadia'`,
+    qty: `10 seeds on mesh`,
+    tag: `Wire mesh · North face Bed 5`,
+    color: `#309828`,
+    emoji: `🫛`,
+    oneliner: `Introduced commercially in 1979 — a modern variety on an ancient crop. Pick one off the mesh and eat it on the spot. Nothing is better.`,
+    origin: `Pacific Northwest, USA · introduced 1979 by Oregon State University`,
+    history: `The sugar snap pea — where both the pod and the fully developed peas inside are tender and edible — is a relatively modern development, introduced commercially in 1979 after a breeding programme by Dr. Calvin Lamborn at Oregon State University. Working from an ancient recessive gene for thickened pod walls present in the pea genome for thousands of years, Lamborn combined it with a stringless characteristic to create the original Sugar Snap, which became an immediate sensation.
+
+'Cascadia' is a subsequent variety developed in the Pacific Northwest, bred for disease resistance and for the cooler, wetter conditions of that region. It is considered by many growers to have superior flavour to the original — the pods sweeter, the wall thicker and more succulent.`,
+    kitchen: `The genius of the sugar snap for a garden visit is immediacy: a visitor reaches up to the mesh, picks a fat pod warm from the vine, and eats it on the spot. The flavour at this moment — grassy, sweet, with a satisfying crunch — is what peas taste like when they are perfect.
+
+In the kitchen: blanch for sixty seconds and toss with brown butter and tarragon. Or slice diagonally raw into a prawn salad. Or split open and scatter over a ricotta crostini. They decline rapidly after harvesting and should always be cooked the day they are picked.`,
+    growing: `Sow seed April–May at the base of the wire mesh, 3cm deep, spacing 8–10cm apart. Keep consistently moist during germination and throughout the season — irregular moisture causes tough, stringy pods. The mesh provides ideal support for the climbing tendrils. Harvest pods every 2–3 days when plump and rounded; leaving pods too long on the plant reduces production significantly. One of the most rewarding crops for the effort involved.`
+  },
+  30: {
+    name: `Sweet Pea 'Matucana'`,
+    latin: `Lathyrus odoratus 'Matucana'`,
+    qty: `6 plants on arch`,
+    tag: `East arch · Ornamental only`,
+    color: `#360560`,
+    emoji: `🌸`,
+    oneliner: `The original sweet pea, sent to England from Sicily in 1699. The most fragrant flower that can be grown in a temperate garden. Not edible.`,
+    origin: `Sicily, Italy · described by Franciscan monk Francisco Cupani · sent to England 1699`,
+    history: `The sweet pea was first described by the Sicilian monk and botanist Francisco Cupani, who sent seeds to England in 1699 from a flower he had found growing wild near Palermo. From this single Sicilian species — Lathyrus odoratus, found only on the rocky hillsides of Sicily — the entire global sweet pea industry descended, producing hundreds of varieties over three centuries of intensive breeding.
+
+'Matucana' is either a direct survival or a very close re-selection of Cupani's original flower — bicoloured in deep purple and magenta, with an extraordinary fragrance that the hundreds of later, large-flowered varieties mostly lost when breeders prioritised flower size and colour range over scent. Its name is thought to derive from the Peruvian town of Matucana, suggesting a separate introduction to Europe via Spanish colonial trade routes alongside Cupani's Sicilian original.`,
+    kitchen: `Sweet peas are not edible — they are mildly toxic, and unlike their cousins the garden peas, should never be consumed. They exist in this garden purely for the senses of sight and smell.
+
+The scent of Matucana is an event: rich, warm and complex, with notes of honey, vanilla and something almost incense-like, broadcasting from a considerable distance on warm still days. On the east arch it will be the first thing that greets visitors approaching the garden — its fragrance arriving before the flower is even visible.`,
+    growing: `Sow seed in punnets April–May and transplant to the arch base when 10cm tall, spacing 15cm apart. Requires support for climbing — the arch wire is ideal. Provide consistent moisture and a weekly liquid feed once flowering begins to extend the season. Pinch out the growing tip when the plant reaches the top of the arch to encourage side shoots and more flowers. Cut flowers regularly — the plant stops flowering if pods are allowed to develop.`
+  },
+  31: {
+    name: `Radicchio Treviso Precoce`,
+    latin: `Cichorium intybus 'Treviso Precoce'`,
+    qty: `4 plants`,
+    tag: null,
+    color: `#600f1a`,
+    emoji: `🌿`,
+    oneliner: `The first Italian vegetable to earn EU protected status. Green in autumn, wine-red by winter. Cold is what makes it.`,
+    origin: `Treviso, Veneto, Italy · IGP protected since 1996 · first Italian vegetable with EU protection`,
+    history: `The radicchio di Treviso has its origins in the farming land around the Venetian city of Treviso, where a distinct tradition of chicory cultivation developed that set this region apart from the rest of Italy. The Precoce (early) form develops its characteristic deep wine-red colouring naturally in the field after cold exposure, requiring no forcing or blanching in the dark — a significant advantage over many chicory varieties that require laborious indoor treatment.
+
+Both the Precoce and its sibling the Tardivo have held IGP (Protected Geographical Indication) status since 1996 — the first Italian vegetables to achieve this European food protection, previously reserved for cheeses, wines and cured meats. The designation reflects a centuries-long regional identity that the people of Treviso have defended with considerable vigour.`,
+    kitchen: `By August in Nannup, the plants will be at peak colour and culinary quality — the ribs having developed a sweetness that offsets the pleasant bitterness of the leaf.
+
+Ideal braised with good aged balsamic, a little butter and toasted walnuts. Excellent raw in composed salads with Parmesan and anchovy. Magnificent simply halved, brushed with oil and grilled over high heat until the outer leaves char and the inside caramelises. A chef of Guy Jeffreys' background will find them immediately and know exactly what to do.`,
+    growing: `Sow seed February–March for August colour. Transplant at 5–6 leaf stage, spacing 35–40cm apart. Prefers full sun and well-drained fertile soil. The transformation to deep red begins as night temperatures consistently drop below 10°C — in Nannup, typically May–June. Do not over-water; radicchio prefers slightly drier conditions than most brassicas. Harvest heads when firm and well-coloured.`
+  },
+  32: {
+    name: `Frisée Endive`,
+    latin: `Cichorium endivia var. crispum`,
+    qty: `2 plants`,
+    tag: null,
+    color: `#8a9c10`,
+    emoji: `🥗`,
+    oneliner: `The salade Lyonnaise herb — frisée, warm lardons, a poached egg. That single dish probably saved this plant from obscurity.`,
+    origin: `Mediterranean · cultivated since Egyptian times · developed in French monastery gardens`,
+    history: `Frisée endive belongs to the chicory family, cultivated since ancient Egyptian times — the Ebers Papyrus of 1550 BC mentions chicory-type plants among medicinal herbs. The curly-leafed frisée form was developed extensively in medieval European monastery gardens, and became a particular favourite of French cuisine, its association with Lyon's brasserie tradition giving it a cultural anchor that sustained it through the twentieth century when many heritage salad greens were abandoned.
+
+The inner heart of the plant is naturally blanched to a pale cream-yellow by the outer leaves, creating a visual and flavour contrast within a single head — pale and mild at the centre, deep green and bitter at the fringe — that no other salad plant possesses. This self-blanching quality is entirely natural and requires no intervention from the gardener.`,
+    kitchen: `The flavour is distinctly bitter — more so than radicchio, more cutting than endive — but this bitterness is precisely its virtue. It functions as a counterweight to richness, cutting through fatty pork, duck and creamy dressings with surgical precision.
+
+Visually it is extraordinary: the inner heart naturally blanched to a pale cream-yellow, surrounded by frilly lacework outer leaves. Paired with the neighbouring Treviso Precoce radicchio, it creates a chicory duet of remarkable sophistication — bitter and bittersweet, pale and wine-red, frilly and architectural.`,
+    growing: `Sow seed February–March and transplant at 5–6 leaf stage, spacing 30–35cm apart. Prefers partial shade — the natural blanching of the inner heart that makes frisée so beautiful happens best when the outer leaves shade the centre. Full sun produces a greener, more uniformly bitter plant. Keep moderately moist. Harvest the whole head when the inner leaves have blanched pale yellow, typically 10–12 weeks from transplant.`
+  },
+  33: {
+    name: `Viola 'Black Delight'`,
+    latin: `Viola × wittrockiana 'Black Delight'`,
+    qty: `3 plants`,
+    tag: `Front edge Bed 5`,
+    color: `#12040e`,
+    emoji: `🌸`,
+    oneliner: `Near-black with a tiny yellow eye. At the front edge of the most dramatic bed in the garden — the darkest possible full stop.`,
+    origin: `Garden hybrid · extreme selection from Victorian pansy breeding`,
+    history: `'Black Delight' represents the furthest extreme of colour selection in pansy breeding — flowers so deeply purple as to appear almost black, with a tiny yellow eye at the centre that reads like a star in a night sky.
+
+In Bed 5 it sits at the very front edge of the most dramatically planted bed in the garden, providing a dark anchor at the base of the radicchio, frisée and snap peas above — a compositional full stop to the whole sequence of colour rising from the ground up through the wine-red radicchio to the purple arch of Matucana sweet peas above.`,
+    kitchen: `Like all viola petals, the flowers of 'Black Delight' are edible — very mild, slightly grassy, valuable entirely for their appearance rather than flavour.
+
+On a pale dessert plate their near-black colouring is one of the most dramatic garnishes possible. Scattered over a champagne panna cotta, pressed into the surface of a white chocolate tart, or floated in a pale gin cocktail, they create an effect of striking visual restraint — a single dark note that makes everything around it appear more luminous.`,
+    growing: `Plant seedlings in autumn, spacing 15–20cm apart along the front bed edge. Prefers full sun and well-drained soil. The near-black colouring intensifies in cool conditions — at its deepest from June through August. Deadhead spent flowers to maintain a long display season. Tolerates light frosts. Replace with summer annuals when the display quality drops in October.`
+  },
+  34: {
+    name: `Romanesco Broccoli`,
+    latin: `Brassica oleracea var. botrytis`,
+    qty: `1 plant per bed`,
+    tag: `South end · Beds 3 & 4`,
+    color: `#4a8020`,
+    emoji: `🥦`,
+    oneliner: `The geometric marvel of the brassica family — its spiral florets trace a perfect Fibonacci sequence. Mathematics made edible, grown in Roman market gardens since the 16th century.`,
+    origin: `Rome, Italy · documented in Roman market gardens from the 16th century`,
+    history: `Romanesco has been grown in the market gardens around Rome since at least the sixteenth century, where it appears in Italian agricultural texts as a distinct variety of the cabbage family. Its name — broccolo romanesco — simply means Roman broccoli, reflecting its connection to the agricultural hinterland of the city.
+
+What makes it extraordinary is its geometry. Each head is composed of a spiral of pointed florets, and each floret is itself a smaller version of the whole head — a self-similar fractal pattern continuing down several levels of magnification. The spiral follows the Fibonacci sequence precisely: the number of clockwise and anticlockwise spirals in each head are always consecutive Fibonacci numbers. This is the same geometry found in pinecones, sunflower seed-heads and nautilus shells. Standing in a kitchen garden in August, a mature Romanesco head is one of the more quietly astonishing things a person can encounter.`,
+    kitchen: `Romanesco is at its best treated simply. Roasted whole in a hot oven with olive oil and sea salt until the tips of the florets char and caramelise, it is one of the finest things the brassica family produces. Broken into florets and charred in a dry pan, then finished with anchovy butter and capers, it becomes a serious dish.
+
+It holds its shape better than cauliflower when cooked, making it ideal for gratins, pasta sauces (particularly with orecchiette and a Sicilian-style breadcrumb topping) and pickling. The colour — a vivid lime-chartreuse green — fades a little with heat but remains beautiful. Raw, shaved thinly with good olive oil and Parmesan, it makes a remarkable winter salad that a chef of Guy Jeffreys' sensibility will reach for immediately.`,
+    growing: `Romanesco needs 80-100 days from transplant to harvest. Sown in March and planted out in May, it should be heading up by August in Nannup's cool conditions. Plant at the south end of Beds 3 and 4 as a structural anchor. Needs consistent moisture and good fertility.`
+  },
+  35: {
+    name: `French Marigold`,
+    latin: `Tagetes patula`,
+    qty: `At 1m spacing · western edge Bed 1`,
+    tag: `West edge · alternating with garlic`,
+    color: `#c87010`,
+    emoji: `🌼`,
+    oneliner: `Despite the name, native to Mexico — the Aztecs cultivated it as a sacred and medicinal plant centuries before it reached European gardens via Spanish conquistadors.`,
+    origin: `Mexico and Central America · introduced to Europe via Spain c.1530 · naturalised in France, giving the misleading common name`,
+    history: `The French marigold is not French at all — it is Mexican. Tagetes patula was cultivated by the Aztecs for centuries before the Spanish conquest, used in religious ceremonies, as a medicinal herb, and as a dye plant. It arrived in Europe through Spanish trade routes around 1530, and French Huguenot refugees later carried seed to England, where gardeners assumed it came from France and named it accordingly.
+
+The confusion of names is a small lesson in how plant histories travel: a Mexican sacred flower becomes French by accident of trade and refugee movement, and the name sticks for five hundred years. In Mexican tradition the flowers — cempasúchil — are the flowers of the Day of the Dead, laid on altars and scattered on graves to guide the spirits of the departed home by their scent and colour.`,
+    kitchen: `The petals of French marigold are edible and have a faintly spicy, slightly bitter flavour — less refined than calendula but perfectly usable scattered over salads or as a garnish. Their primary kitchen garden value is as companion plants: the roots secrete a substance toxic to nematodes, and the strongly scented foliage confuses and deters aphids, whitefly and other pests that would otherwise target the brassicas in Bed 1.
+
+Interplanted with garlic along the western edge of the bed, they form a classic pest-deterrent partnership that has been used in kitchen gardens for generations.`,
+    growing: `Compact and bushy, reaching 20-30cm. Plant along the western edge of Bed 1 at 1m spacing, alternating with garlic cloves. Full sun. Deadhead regularly to maintain continuous flowering through to August and beyond. Cold-tolerant enough to persist well into autumn in Nannup.`
+  },
+  36: {
+    name: `Garlic`,
+    latin: `Allium sativum`,
+    qty: `Cloves at 20cm spacing · between marigolds`,
+    tag: `West edge · alternating with marigolds · Bed 1`,
+    color: `#9898c0`,
+    emoji: `🧄`,
+    oneliner: `Five thousand years of cultivation — from the pyramids of Egypt to the peasant kitchens of Provence. The most indispensable plant in the Western and Eastern kitchen garden alike.`,
+    origin: `Central Asia · cultivated for at least 5,000 years · spread along ancient trade routes to Egypt, Greece, Rome and China`,
+    history: `Garlic is among the oldest cultivated plants, with evidence of use stretching back at least five thousand years. Workers building the pyramids at Giza were provisioned with garlic, onions and radishes — one of the earliest recorded uses of plants as sustaining food for heavy labour. The ancient Egyptians held garlic in almost sacred regard; bulbs were found in the tomb of Tutankhamun.
+
+The Greeks and Romans used it extensively, though with class anxiety — Horace wrote of it as peasant food, and the smell on the breath of those who ate it was considered vulgar. This tension between the aristocratic table and garlic's coarser associations persisted through European culinary history until Escoffier and the French classical tradition finally legitimised it fully. In Provence, the cooking has never required legitimisation — aioli and pistou are unthinkable without it.`,
+    kitchen: `Garlic's chemistry is the key to understanding its cooking. The compound allicin — responsible for the pungent smell — is only produced when the cell walls are broken. Whole roasted cloves in their skins become sweet, nutty and mild. Thinly sliced garlic cooked slowly in olive oil becomes golden and gentle. Crushed raw garlic carries full heat and intensity. The same bulb, treated three different ways, produces three entirely different ingredients.
+
+Planted in March in Nannup, the bulbs will be approaching readiness in August — either harvested young as green garlic (the whole plant pulled when the leaves are still upright) or left to full maturity with papery skins. Green garlic, sliced thinly and sweated in butter, is one of the great quiet pleasures of late winter cooking.`,
+    growing: `Plant individual cloves pointed-end up, 5cm deep, 20cm apart, along the western edge of Bed 1 between French marigolds. Plant in March for harvest from late July onward. The upright strap foliage will not shade neighbouring plants and actively deters aphids from the nearby brassicas. Companion planting with marigolds maximises the pest-deterrent effect.`
+  },
+  37: {
+    name: `Red Backed Ginger`,
+    latin: `Alpinia zerumbet (red-backed form)`,
+    qty: `Established clump`,
+    tag: `Bed 2 · existing plant`,
+    color: `#8a1830`,
+    emoji: `🌿`,
+    oneliner: `A striking ornamental ginger with deep green leaves dramatically marked with burgundy-red undersides — one of the most visually arresting plants in the Asian kitchen garden tradition.`,
+    origin: `Southeast Asia and Pacific · widely cultivated across tropical and subtropical Asia · ornamental and culinary uses`,
+    history: `Alpinia zerumbet — shell ginger and its related forms — belongs to the great family of gingers that has shaped the cooking, medicine and ritual life of Southeast Asia for millennia. The genus Alpinia was named by the botanist William Houstoun in honour of Prospero Alpini, a Venetian physician who travelled to Egypt in the late sixteenth century and brought back detailed knowledge of Eastern plants to European science.
+
+The red-backed forms of ornamental ginger — prized for the deep burgundy-red colouring on the undersides of the leaves — have been cultivated as garden ornamentals across tropical Asia and the Pacific for centuries, used both decoratively and as a source of aromatic leaves for wrapping and flavouring food. In Japan, Alpinia zerumbet leaves are used to wrap mochi rice cakes for the Tanabata festival. In Southeast Asia the rhizomes and young shoots are used medicinally and in cooking. The plant's bold, architectural presence makes it a natural centrepiece in any Asian-inspired garden.`,
+    kitchen: `The large, glossy leaves of red backed ginger are strongly aromatic when crushed — a warm, clean ginger-like scent with green, almost citrus notes. They are used across Southeast Asia and the Pacific to wrap fish, sticky rice and other foods before steaming or grilling, imparting a subtle fragrance to the contents.
+
+Young shoots and the rhizomes of Alpinia species are edible and used in Thai, Indonesian and Malaysian cooking — particularly in spice pastes and curries where they contribute a distinctive fresh ginger note different from common ginger. The flower buds, when they appear, are also edible and used as a garnish in Thai cuisine.
+
+By August the plant will be at its most dramatic — tall, architectural, the deep red leaf undersides catching the light as the foliage moves. A chef of Guy Jeffreys' background will recognise the genus immediately and understand its place in the Asian culinary tradition this bed represents.`,
+    growing: `Established clump in Bed 2. Alpinia zerumbet prefers a warm, sheltered position with consistent moisture and rich soil — conditions Bed 2 provides. It will die back with frost but in Nannup's mild climate should remain largely evergreen through winter. Divide clumps in spring to propagate. By August the foliage will be lush and full, the red-backed leaves providing strong visual contrast with the greens and purples of the surrounding Asian brassicas.`
+  },
+  38: {
+    name: `Japanese Bunching Onion`,
+    latin: `Allium fistulosum`,
+    qty: `1 clump (seedlings)`,
+    tag: `Bed 2 · between komatsuna and coriander`,
+    color: `#4a7840`,
+    emoji: `🌿`,
+    oneliner: `Two thousand years of Japanese cultivation — the onion that never forms a bulb, divides endlessly, and anchors the flavour of yakitori, ramen and miso soup.`,
+    origin: `China · cultivated for 2,000+ years · central to Japanese, Korean and Chinese cooking`,
+    history: `The Japanese bunching onion has been cultivated in East Asia for more than two thousand years, originating in China before becoming so thoroughly incorporated into Japanese cuisine that it now carries the generic Japanese word for onion: negi. Unlike common onions, it never forms a true bulb — the plant simply produces upright hollow green leaves and white shafts, expanding into a clump that can be divided repeatedly and harvested indefinitely.
+
+The long white shaft — blanched by earthing up — is the form prized in Japanese cuisine and is distinct in flavour and texture from the green tops, which are used differently. The variety known as Tokyo negi or Naganegi produces particularly long, thick white shafts that appear in every serious Japanese kitchen. In Korea the bunching onion — pa — is essential to the same degree, forming the flavour base of pajeon pancakes, sundubu jjigae and bibimbap.
+
+The fact that it forms a perennial clump rather than dying after seeding makes it one of the most garden-practical alliums: once established it simply stays, divides and produces indefinitely.`,
+    kitchen: `The white shaft and the green tops perform different roles in the kitchen and should be thought of as two separate ingredients. The white shaft — mild, sweet, with a silky texture when cooked — is used in yakitori, sliced into segments and grilled between pieces of chicken thigh until deeply caramelised. It is the negi in negi-ma tuna hotpot, the essential allium in a properly made tonkotsu ramen, and the aromatic base sweated in sesame oil at the start of countless Japanese sauces and braises.
+
+The green tops are used raw as a finishing garnish — finely sliced and scattered over miso soup, cold soba, agedashi tofu, gyudon beef rice bowl. The contrast between raw green and the richness of the dish beneath is a structural principle of Japanese plating rather than a mere garnish habit.
+
+For a chef of Guy Jeffreys' experience, a thriving established clump of Japanese bunching onion in the Asian Kitchen Bed — alongside garlic chives, perennial coriander, turmeric and red-backed ginger — completes the picture of a serious Asian kitchen garden in a way that nothing else quite could.`,
+    growing: `Plant seedling clump in Bed 2, between the komatsuna and perennial coriander, toward the middle-west section of the bed. Space away from garlic chives to avoid visual repetition of upright allium foliage. Fully perennial and cold-hardy — will not be troubled by Nannup winters. Earth up the base with a little additional soil to blanch the white shaft. Harvest outer stems continuously; the clump will expand steadily. By August the plants will be at full upright height — 40–60cm — making a strong architectural statement between the lower rosette plants.`
+  },
+};
+
+let currentBed = null;
+
+function showScreen(id, direction) {
+  document.querySelectorAll('.screen').forEach(s => {
+    if (s.id === id) {
+      s.classList.remove('hidden','slide-left');
+    } else if (!s.classList.contains('hidden')) {
+      s.classList.add(direction === 'forward' ? 'slide-left' : 'hidden');
+      setTimeout(() => s.classList.add('hidden'), 340);
+    }
+  });
+}
+
+function goHome() { showScreen('screen-home','back'); currentBed = null; }
+function goBed(bedId) {
+  currentBed = bedId;
+  renderBed(bedId);
+  document.getElementById('plant-back-label').textContent = BEDS[bedId].name;
+  showScreen('screen-bed','forward');
+}
+function goPlant(pid) { renderPlant(pid); showScreen('screen-plant','forward'); }
+function goBackToBed() { currentBed ? showScreen('screen-bed','back') : goHome(); }
+
+function renderHome() {
+  const container = document.getElementById('bed-cards');
+  container.innerHTML = '';
+  Object.keys(BEDS).forEach(id => {
+    const bed = BEDS[id];
+    const card = document.createElement('div');
+    card.className = 'bed-card';
+    card.onclick = () => goBed(id);
+    card.innerHTML = `
+      <div class="bed-card-num" style="background:${bed.color}">${id}</div>
+      <div class="bed-card-info">
+        <div class="bed-card-name">${bed.name}</div>
+        <div class="bed-card-dims">${bed.dims}</div>
+      </div>
+      <div class="bed-card-arrow">›</div>`;
+    container.appendChild(card);
+  });
+  document.querySelectorAll('.bed-rect').forEach(el => {
+    el.onclick = () => { const bid = el.getAttribute('data-bed'); if (bid) goBed(bid); };
+  });
+}
+
+function renderBed(bedId) {
+  const bed = BEDS[bedId];
+  const hero = document.getElementById('bed-hero');
+  hero.style.borderBottom = `3px solid ${bed.color}`;
+  hero.innerHTML = `
+    <div class="bed-hero-number" style="color:${bed.color}">${bed.nickname}</div>
+    <div class="bed-hero-name">${bed.name}</div>
+    <div class="bed-hero-dims">${bed.dims}</div>
+    <div class="bed-hero-char">${bed.character}</div>`;
+  const list = document.getElementById('plant-list');
+  list.innerHTML = '';
+  bed.plants.forEach(pid => {
+    const p = PLANTS[pid];
+    if (!p) return;
+    const card = document.createElement('div');
+    card.className = 'plant-card fade-in';
+    card.onclick = () => goPlant(pid);
+    card.innerHTML = `
+      <div class="plant-swatch" style="background:${p.color}">${p.emoji}</div>
+      <div class="plant-card-body">
+        <div class="plant-card-name">${p.name}</div>
+        <div class="plant-card-latin">${p.latin}</div>
+        <div class="plant-card-oneliner">${p.oneliner}</div>
+        ${p.tag ? `<div class="plant-tag-pill">${p.tag}</div>` : ''}
+      </div>
+      <div class="plant-card-arrow">›</div>`;
+    list.appendChild(card);
+  });
+}
+
+function renderPlant(pid) {
+  const p = PLANTS[pid];
+  if (!p) return;
+  document.getElementById('plant-back-btn').onclick = goBackToBed;
+  function paras(text) {
+    return text.trim().split('\n\n').map(t => `<p>${t.trim()}</p>`).join('');
+  }
+  const body = document.getElementById('plant-body');
+  body.scrollTop = 0;
+  body.innerHTML = `
+    <div class="plant-hero fade-in">
+      <div class="plant-hero-swatch" style="background:${p.color}">${p.emoji}</div>
+      <div class="plant-hero-name">${p.name}</div>
+      <div class="plant-hero-latin">${p.latin}</div>
+      <div class="plant-hero-oneliner">${p.oneliner}</div>
+    </div>
+    <div class="plant-meta">
+      <div class="plant-meta-item">
+        <div class="plant-meta-label">Quantity</div>
+        <div class="plant-meta-value">${p.qty}</div>
+      </div>
+      ${p.tag ? `<div class="plant-meta-item">
+        <div class="plant-meta-label">Notes</div>
+        <div class="plant-meta-value">${p.tag}</div>
+      </div>` : ''}
+    </div>
+    <div class="plant-section">
+      <div class="plant-section-label"><span class="plant-section-icon">🌍</span>Origin</div>
+      <div class="plant-origin">${p.origin}</div>
+    </div>
+    <div class="plant-section">
+      <div class="plant-section-label"><span class="plant-section-icon">📜</span>History</div>
+      <div class="plant-text">${paras(p.history)}</div>
+    </div>
+    ${p.growing ? `<div class="plant-section">
+      <div class="plant-section-label"><span class="plant-section-icon">🌱</span>Growing Conditions</div>
+      <div class="plant-text"><p>${p.growing}</p></div>
+    </div>` : ''}
+    <div class="plant-section">
+      <div class="plant-section-label"><span class="plant-section-icon">🍽</span>In the Kitchen</div>
+      <div class="plant-text">${paras(p.kitchen)}</div>
+    </div>`;
+}
+
+let deferredPrompt;
+const banner = document.getElementById('install-banner');
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredPrompt = e; banner.style.display = 'flex';
+});
+banner.addEventListener('click', async () => {
+  if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; }
+  banner.style.display = 'none';
+});
+function dismissBanner() { banner.style.display = 'none'; }
+
+function checkiOS() {
+  const isIOS = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+  if (isIOS && !window.navigator.standalone && !sessionStorage.getItem('ios-hint')) {
+    sessionStorage.setItem('ios-hint','1');
+    banner.innerHTML = '<span>⬆</span> Tap Share then "Add to Home Screen" to install';
+    banner.style.display = 'flex';
+    setTimeout(() => { banner.style.display = 'none'; }, 8000);
+  }
+}
+
+renderHome();
+checkiOS();
+</script>
+</body>
+</html>
