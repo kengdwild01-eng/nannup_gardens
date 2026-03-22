@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Garden Mapper</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f8f5; color: #1a1a1a; padding: 12px; }
+h1 { font-size: 18px; font-weight: 500; margin-bottom: 12px; color: #1a1a1a; }
+#map { width: 100%; height: 55vh; border-radius: 10px; border: 0.5px solid #ddd; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+button { font-size: 13px; padding: 7px 14px; border-radius: 8px; border: 0.5px solid #ccc; background: #fff; color: #1a1a1a; cursor: pointer; }
+button:hover { background: #f0f0ee; }
+button.active { background: #e6f1fb; color: #185fa5; border-color: #85b7eb; }
+button.danger { background: #fcebeb; color: #a32d2d; border-color: #f09595; }
+.status { font-size: 13px; color: #666; padding: 8px 12px; background: #f0f0ee; border-radius: 8px; margin-bottom: 8px; min-height: 36px; display: flex; align-items: center; }
+.plant-form { display: none; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; padding: 12px; background: #f0f0ee; border-radius: 8px; border: 0.5px solid #ddd; }
+.plant-form.visible { display: flex; }
+.plant-form input, .plant-form select { font-size: 13px; padding: 6px 10px; border-radius: 8px; border: 0.5px solid #ccc; background: #fff; color: #1a1a1a; }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; color: #666; }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.count-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.count-card { background: #f0f0ee; border-radius: 8px; padding: 8px 14px; font-size: 13px; color: #666; }
+.count-card span { font-weight: 500; color: #1a1a1a; font-size: 15px; display: block; }
+</style>
+</head>
+<body>
+
+<h1>Garden Mapper</h1>
+
+<div class="count-row">
+  <div class="count-card"><span id="cnt-corners">0</span> boundary corners</div>
+  <div class="count-card"><span id="cnt-path">0</span> path points</div>
+  <div class="count-card"><span id="cnt-plants">0</span> plants mapped</div>
+</div>
+
+<div class="status" id="status">Choose a mode below, then use the map.</div>
+
+<div class="toolbar">
+  <button id="btn-boundary" onclick="setMode('boundary')">Mark boundary corner</button>
+  <button id="btn-path" onclick="togglePath()">Start path</button>
+  <button id="btn-plant" onclick="setMode('plant')">Add plant / tree</button>
+  <button id="btn-clear" class="danger" onclick="clearAll()">Clear all</button>
+  <button onclick="exportData()">Export GeoJSON</button>
+</div>
+
+<div class="plant-form" id="plant-form">
+  <input id="plant-name" placeholder="Plant name (e.g. Lemon tree)" style="flex:1; min-width:160px;" />
+  <select id="plant-type">
+    <option value="tree">Tree</option>
+    <option value="shrub">Shrub</option>
+    <option value="bed">Garden bed</option>
+    <option value="feature">Feature</option>
+  </select>
+  <input id="plant-notes" placeholder="Notes (optional)" style="flex:1; min-width:120px;" />
+  <button onclick="confirmPlant()">Place on map</button>
+  <button onclick="cancelPlant()">Cancel</button>
+</div>
+
+<div id="map"></div>
+
+<div class="legend">
+  <div class="legend-item"><div class="dot" style="background:#1D9E75"></div> Boundary</div>
+  <div class="legend-item"><div class="dot" style="background:#378ADD"></div> Path</div>
+  <div class="legend-item"><div class="dot" style="background:#D85A30"></div> Tree</div>
+  <div class="legend-item"><div class="dot" style="background:#7F77DD"></div> Shrub</div>
+  <div class="legend-item"><div class="dot" style="background:#BA7517"></div> Bed</div>
+  <div class="legend-item"><div class="dot" style="background:#888780"></div> Feature</div>
+</div>
+
+<script>
+var map, mode = null, pathActive = false;
+var boundaryPoints = [], boundaryMarkers = [], boundaryPoly = null;
+var pathPoints = [], pathLine = null, pathWatchId = null;
+var plants = [];
+var pendingLatLng = null;
+
+var COLORS = { tree:'#D85A30', shrub:'#7F77DD', bed:'#BA7517', feature:'#888780', boundary:'#1D9E75', path:'#378ADD' };
+
+function initMap() {
+  map = L.map('map');
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors', maxZoom: 22
+  }).addTo(map);
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(pos) {
+      map.setView([pos.coords.latitude, pos.coords.longitude], 18);
+      setStatus('Map centred on your location. Choose a mode to begin.');
+    }, function() {
+      map.setView([-33.9833, 115.7667], 17);
+      setStatus('Could not get GPS location — map centred on Nannup. Choose a mode to begin.');
+    });
+  } else {
+    map.setView([-33.9833, 115.7667], 17);
+  }
+
+  map.on('click', onMapClick);
+}
+
+function onMapClick(e) {
+  if (mode === 'boundary') {
+    addBoundaryPoint(e.latlng);
+  } else if (mode === 'plant') {
+    pendingLatLng = e.latlng;
+    document.getElementById('plant-form').classList.add('visible');
+    document.getElementById('plant-name').focus();
+    setStatus('Enter plant details in the form above, then click Place on map.');
+  }
+}
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('btn-boundary').classList.toggle('active', m === 'boundary');
+  document.getElementById('btn-plant').classList.toggle('active', m === 'plant');
+  if (m === 'boundary') setStatus('Click on the map to mark each corner of the property boundary. Click near the first corner again to close.');
+  if (m === 'plant') setStatus('Click on the map where the plant is located.');
+}
+
+function addBoundaryPoint(latlng) {
+  if (boundaryPoints.length > 2) {
+    var first = boundaryPoints[0];
+    if (map.distance(latlng, first) < 5) {
+      closeBoundary();
+      return;
+    }
+  }
+  boundaryPoints.push(latlng);
+  var m = L.circleMarker(latlng, { radius:6, color: COLORS.boundary, fillColor: COLORS.boundary, fillOpacity:1, weight:2 })
+    .bindTooltip('Corner ' + boundaryPoints.length).addTo(map);
+  boundaryMarkers.push(m);
+  updateBoundaryPoly();
+  updateCounts();
+  setStatus('Corner ' + boundaryPoints.length + ' marked. ' + (boundaryPoints.length > 2 ? 'Click near the first corner to close, or keep adding corners.' : 'Keep clicking corners.'));
+}
+
+function updateBoundaryPoly() {
+  if (boundaryPoly) map.removeLayer(boundaryPoly);
+  if (boundaryPoints.length > 1) {
+    boundaryPoly = L.polyline(boundaryPoints, { color: COLORS.boundary, weight:2, dashArray:'6,4' }).addTo(map);
+  }
+}
+
+function closeBoundary() {
+  if (boundaryPoly) map.removeLayer(boundaryPoly);
+  boundaryPoly = L.polygon(boundaryPoints, { color: COLORS.boundary, weight:2, fillColor: COLORS.boundary, fillOpacity:0.08 }).addTo(map);
+  mode = null;
+  document.getElementById('btn-boundary').classList.remove('active');
+  setStatus('Boundary closed with ' + boundaryPoints.length + ' corners. You can now map paths or plants.');
+  updateCounts();
+}
+
+function togglePath() {
+  if (!pathActive) { startPath(); } else { stopPath(); }
+}
+
+function startPath() {
+  if (!navigator.geolocation) { setStatus('GPS not available on this device.'); return; }
+  pathActive = true;
+  mode = null;
+  document.getElementById('btn-path').textContent = 'Stop path';
+  document.getElementById('btn-path').classList.add('active');
+  setStatus('Walking path — move along the path. GPS is tracking your position.');
+  pathWatchId = navigator.geolocation.watchPosition(function(pos) {
+    var latlng = [pos.coords.latitude, pos.coords.longitude];
+    pathPoints.push(latlng);
+    if (pathLine) map.removeLayer(pathLine);
+    pathLine = L.polyline(pathPoints, { color: COLORS.path, weight:4, opacity:0.8 }).addTo(map);
+    map.panTo(latlng);
+    updateCounts();
+  }, null, { enableHighAccuracy: true, maximumAge: 1000 });
+}
+
+function stopPath() {
+  pathActive = false;
+  document.getElementById('btn-path').textContent = 'Start path';
+  document.getElementById('btn-path').classList.remove('active');
+  if (pathWatchId) navigator.geolocation.clearWatch(pathWatchId);
+  setStatus('Path recorded with ' + pathPoints.length + ' GPS points.');
+}
+
+function confirmPlant() {
+  var name = document.getElementById('plant-name').value.trim();
+  if (!name) { alert('Please enter a plant name.'); return; }
+  var type = document.getElementById('plant-type').value;
+  var notes = document.getElementById('plant-notes').value.trim();
+  var latlng = pendingLatLng;
+  var color = COLORS[type] || COLORS.feature;
+  var marker = L.circleMarker(latlng, { radius:8, color: color, fillColor: color, fillOpacity:0.9, weight:2 })
+    .bindPopup('<strong>' + name + '</strong><br><em>' + type + '</em>' + (notes ? '<br>' + notes : ''))
+    .addTo(map);
+  marker.openPopup();
+  plants.push({ name: name, type: type, notes: notes, latlng: latlng, marker: marker });
+  cancelPlant();
+  updateCounts();
+  setStatus(name + ' added. Click Add plant / tree to place another.');
+}
+
+function cancelPlant() {
+  document.getElementById('plant-form').classList.remove('visible');
+  document.getElementById('plant-name').value = '';
+  document.getElementById('plant-notes').value = '';
+  pendingLatLng = null;
+  mode = null;
+  document.getElementById('btn-plant').classList.remove('active');
+}
+
+function clearAll() {
+  if (!confirm('Clear all mapped data?')) return;
+  boundaryMarkers.forEach(function(m) { map.removeLayer(m); });
+  if (boundaryPoly) map.removeLayer(boundaryPoly);
+  if (pathLine) map.removeLayer(pathLine);
+  plants.forEach(function(p) { if (p.marker) map.removeLayer(p.marker); });
+  boundaryPoints = []; boundaryMarkers = []; boundaryPoly = null;
+  pathPoints = []; pathLine = null; plants = [];
+  updateCounts();
+  setStatus('All data cleared.');
+}
+
+function exportData() {
+  var features = [];
+  if (boundaryPoints.length > 2) {
+    var coords = boundaryPoints.map(function(p) { return [p.lng, p.lat]; });
+    coords.push(coords[0]);
+    features.push({ type:'Feature', properties:{ type:'boundary' }, geometry:{ type:'Polygon', coordinates:[coords] } });
+  }
+  if (pathPoints.length > 1) {
+    features.push({ type:'Feature', properties:{ type:'path' }, geometry:{ type:'LineString', coordinates: pathPoints.map(function(p) { return [p[1], p[0]]; }) } });
+  }
+  plants.forEach(function(p) {
+    features.push({ type:'Feature', properties:{ name:p.name, type:p.type, notes:p.notes }, geometry:{ type:'Point', coordinates:[p.latlng.lng, p.latlng.lat] } });
+  });
+  var geojson = JSON.stringify({ type:'FeatureCollection', features: features }, null, 2);
+  var blob = new Blob([geojson], { type:'application/json' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'garden-map.geojson';
+  a.click();
+  setStatus('GeoJSON exported successfully.');
+}
+
+function setStatus(msg) { document.getElementById('status').textContent = msg; }
+function updateCounts() {
+  document.getElementById('cnt-corners').textContent = boundaryPoints.length;
+  document.getElementById('cnt-path').textContent = pathPoints.length;
+  document.getElementById('cnt-plants').textContent = plants.length;
+}
+
+window.onload = initMap;
+</script>
+</body>
+</html>
