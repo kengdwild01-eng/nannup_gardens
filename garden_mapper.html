@@ -3,61 +3,86 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Garden Mapper</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<title>Garden Mapper V1.00</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f8f5; color: #1a1a1a; padding: 12px; }
-h1 { font-size: 18px; font-weight: 500; margin-bottom: 12px; color: #1a1a1a; }
-#map { width: 100%; height: 55vh; border-radius: 10px; border: 0.5px solid #ddd; }
+h1 { font-size: 18px; font-weight: 500; margin-bottom: 12px; }
+#map { width: 100%; height: 52vh; border-radius: 10px; border: 0.5px solid #ddd; }
 .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
 button { font-size: 13px; padding: 7px 14px; border-radius: 8px; border: 0.5px solid #ccc; background: #fff; color: #1a1a1a; cursor: pointer; }
 button:hover { background: #f0f0ee; }
 button.active { background: #e6f1fb; color: #185fa5; border-color: #85b7eb; }
 button.danger { background: #fcebeb; color: #a32d2d; border-color: #f09595; }
+button:disabled { opacity: 0.4; cursor: default; }
 .status { font-size: 13px; color: #666; padding: 8px 12px; background: #f0f0ee; border-radius: 8px; margin-bottom: 8px; min-height: 36px; display: flex; align-items: center; }
-.plant-form { display: none; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; padding: 12px; background: #f0f0ee; border-radius: 8px; border: 0.5px solid #ddd; }
-.plant-form.visible { display: flex; }
-.plant-form input, .plant-form select { font-size: 13px; padding: 6px 10px; border-radius: 8px; border: 0.5px solid #ccc; background: #fff; color: #1a1a1a; }
-.legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; color: #666; }
+.panel { display: none; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; padding: 12px; background: #f0f0ee; border-radius: 8px; border: 0.5px solid #ddd; }
+.panel.visible { display: flex; }
+.panel input, .panel select { font-size: 13px; padding: 6px 10px; border-radius: 8px; border: 0.5px solid #ccc; background: #fff; color: #1a1a1a; }
+.legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; color: #666; }
 .legend-item { display: flex; align-items: center; gap: 5px; }
 .dot { width: 10px; height: 10px; border-radius: 50%; }
 .count-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
 .count-card { background: #f0f0ee; border-radius: 8px; padding: 8px 14px; font-size: 13px; color: #666; }
 .count-card span { font-weight: 500; color: #1a1a1a; font-size: 15px; display: block; }
-.settings { display: flex; gap: 16px; flex-wrap: wrap; margin: 8px 0; font-size: 12px; color: #666; align-items: center; }
+.settings { display: flex; gap: 16px; flex-wrap: wrap; margin: 6px 0 8px; font-size: 12px; color: #666; align-items: center; }
 .settings label { display: flex; align-items: center; gap: 6px; }
 .settings input[type=range] { width: 80px; }
 .settings span { font-weight: 500; color: #1a1a1a; min-width: 28px; }
+.progress-bar { width: 100%; height: 8px; background: #ddd; border-radius: 4px; overflow: hidden; margin: 6px 0; }
+.progress-fill { height: 100%; background: #1D9E75; border-radius: 4px; transition: width 0.3s; }
+.path-list { font-size: 12px; color: #666; margin-top: 6px; }
+.path-item { display: flex; align-items: center; gap: 6px; margin: 3px 0; }
+.path-swatch { width: 24px; height: 4px; border-radius: 2px; }
+.overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
+.overlay.visible { display: flex; }
+.overlay-box { background: #fff; border-radius: 12px; padding: 24px; max-width: 300px; width: 90%; text-align: center; }
+.overlay-box h2 { font-size: 16px; font-weight: 500; margin-bottom: 8px; }
+.overlay-box p { font-size: 13px; color: #666; margin-bottom: 16px; line-height: 1.5; }
+.acc-display { font-size: 22px; font-weight: 500; color: #1D9E75; margin: 8px 0; }
 </style>
 </head>
 <body>
 
-<h1>Garden Mapper</h1>
+<h1>Garden Mapper <span style="font-size:13px; font-weight:400; color:#888;">V1.00</span></h1>
 
 <div class="count-row">
   <div class="count-card"><span id="cnt-corners">0</span> boundary corners</div>
-  <div class="count-card"><span id="cnt-path">0</span> path points</div>
-  <div class="count-card"><span id="cnt-plants">0</span> plants mapped</div>
+  <div class="count-card"><span id="cnt-paths">0</span> paths</div>
+  <div class="count-card"><span id="cnt-plants">0</span> plants</div>
 </div>
 
 <div class="status" id="status">Choose a mode below, then use the map.</div>
 
 <div class="toolbar">
-  <button id="btn-boundary" onclick="setMode('boundary')">Mark boundary corner</button>
-  <button id="btn-path" onclick="togglePath()">Start path</button>
-  <button id="btn-plant" onclick="setMode('plant')">Add plant / tree</button>
+  <button id="btn-boundary" onclick="setMode('boundary')">Mark boundary</button>
+  <button id="btn-path" onclick="showPathPanel()">New path</button>
+  <button id="btn-plant" onclick="setMode('plant')">Add plant</button>
+  <button id="btn-export" onclick="showExportPanel()">Export</button>
   <button id="btn-clear" class="danger" onclick="clearAll()">Clear all</button>
-  <button onclick="exportData()">Export GeoJSON</button>
 </div>
 
 <div class="settings">
   <label>Min move (m): <input type="range" id="min-dist" min="1" max="10" value="3" oninput="document.getElementById('min-dist-val').textContent=this.value"/> <span id="min-dist-val">3</span></label>
-  <label>Smoothing pts: <input type="range" id="smooth-pts" min="1" max="7" value="3" oninput="document.getElementById('smooth-pts-val').textContent=this.value"/> <span id="smooth-pts-val">3</span></label>
+  <label>Smoothing: <input type="range" id="smooth-pts" min="1" max="7" value="3" oninput="document.getElementById('smooth-pts-val').textContent=this.value"/> <span id="smooth-pts-val">3</span></label>
 </div>
 
-<div class="plant-form" id="plant-form">
+<div class="panel" id="path-panel">
+  <input id="path-name" placeholder="Path name (e.g. Main entrance)" style="flex:1; min-width:160px;" />
+  <button onclick="startNewPath()">Start walking</button>
+  <button onclick="hidePathPanel()">Cancel</button>
+</div>
+
+<div class="panel" id="path-active-panel">
+  <span id="path-active-label" style="font-size:13px; font-weight:500; flex:1;"></span>
+  <span id="path-pass-label" style="font-size:12px; color:#666;"></span>
+  <button onclick="addPass()">Add pass</button>
+  <button onclick="finishPath()" style="background:#e6f1fb; color:#185fa5; border-color:#85b7eb;">Finish path</button>
+</div>
+
+<div class="panel" id="plant-panel">
   <input id="plant-name" placeholder="Plant name (e.g. Lemon tree)" style="flex:1; min-width:160px;" />
   <select id="plant-type">
     <option value="tree">Tree</option>
@@ -66,29 +91,53 @@ button.danger { background: #fcebeb; color: #a32d2d; border-color: #f09595; }
     <option value="feature">Feature</option>
   </select>
   <input id="plant-notes" placeholder="Notes (optional)" style="flex:1; min-width:120px;" />
-  <button onclick="confirmPlant()">Place on map</button>
+  <button onclick="startPlantFix()" id="btn-fix">Take GPS fix</button>
   <button onclick="cancelPlant()">Cancel</button>
+</div>
+
+<div class="panel" id="export-panel">
+  <select id="export-select" style="flex:1;">
+    <option value="all">All data</option>
+  </select>
+  <button onclick="doExport()">Download GeoJSON</button>
+  <button onclick="document.getElementById('export-panel').classList.remove('visible')">Cancel</button>
 </div>
 
 <div id="map"></div>
 
+<div id="path-list" class="path-list"></div>
+
 <div class="legend">
   <div class="legend-item"><div class="dot" style="background:#1D9E75"></div> Boundary</div>
-  <div class="legend-item"><div class="dot" style="background:#378ADD"></div> Path</div>
+  <div class="legend-item"><div class="dot" style="background:#888"></div> Paths (named)</div>
   <div class="legend-item"><div class="dot" style="background:#D85A30"></div> Tree</div>
   <div class="legend-item"><div class="dot" style="background:#7F77DD"></div> Shrub</div>
   <div class="legend-item"><div class="dot" style="background:#BA7517"></div> Bed</div>
   <div class="legend-item"><div class="dot" style="background:#888780"></div> Feature</div>
 </div>
 
-<script>
-var map, mode = null, pathActive = false;
-var boundaryPoints = [], boundaryMarkers = [], boundaryPoly = null;
-var rawPathPoints = [], smoothedPathPoints = [], pathLine = null, pathWatchId = null;
-var plants = [];
-var pendingLatLng = null;
+<div class="overlay" id="gps-overlay">
+  <div class="overlay-box">
+    <h2 id="overlay-title">Acquiring GPS fix</h2>
+    <p id="overlay-msg">Stand still at the plant location. Taking multiple readings to improve accuracy.</p>
+    <div class="progress-bar"><div class="progress-fill" id="fix-progress" style="width:0%"></div></div>
+    <div class="acc-display" id="fix-acc">— m</div>
+    <p style="font-size:12px; color:#aaa;" id="fix-count">0 / 20 fixes</p>
+    <button onclick="cancelFix()" style="margin-top:8px;">Cancel</button>
+  </div>
+</div>
 
-var COLORS = { tree:'#D85A30', shrub:'#7F77DD', bed:'#BA7517', feature:'#888780', boundary:'#1D9E75', path:'#378ADD' };
+<script>
+var map, mode = null;
+var boundaryPoints = [], boundaryMarkers = [], boundaryPoly = null;
+var paths = [];
+var currentPath = null;
+var plants = [];
+var fixWatchId = null, fixReadings = [], fixTarget = 20;
+var pendingPlantName, pendingPlantType, pendingPlantNotes;
+
+var PATH_COLORS = ['#E05C2A','#7F77DD','#1D9E75','#D4537E','#BA7517','#185fa5','#3B6D11','#993556'];
+var PLANT_COLORS = { tree:'#D85A30', shrub:'#7F77DD', bed:'#BA7517', feature:'#888780' };
 
 function initMap() {
   map = L.map('map');
@@ -103,7 +152,7 @@ function initMap() {
         setStatus('Map centred on your location. Choose a mode to begin.');
       }, function() {
         map.setView([-33.9833, 115.7667], 17);
-        setStatus('Could not get GPS location — map centred on Nannup. Choose a mode to begin.');
+        setStatus('Map centred on Nannup. Choose a mode to begin.');
       }, { enableHighAccuracy: true, timeout: 10000 });
     } else {
       map.setView([-33.9833, 115.7667], 17);
@@ -118,178 +167,296 @@ function getSmoothPts() { return parseInt(document.getElementById('smooth-pts').
 
 function haversineDistance(a, b) {
   var R = 6371000;
-  var dLat = (b[0] - a[0]) * Math.PI / 180;
-  var dLng = (b[1] - a[1]) * Math.PI / 180;
-  var x = Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(a[0] * Math.PI/180) * Math.cos(b[0] * Math.PI/180) *
-    Math.sin(dLng/2) * Math.sin(dLng/2);
+  var dLat = (b[0]-a[0])*Math.PI/180, dLng = (b[1]-a[1])*Math.PI/180;
+  var x = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(a[0]*Math.PI/180)*Math.cos(b[0]*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
   return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1-x));
 }
 
 function movingAverage(points, window) {
   if (points.length < 2) return points;
-  var half = Math.floor(window / 2);
+  var half = Math.floor(window/2);
   return points.map(function(p, i) {
-    var start = Math.max(0, i - half);
-    var end = Math.min(points.length - 1, i + half);
-    var sumLat = 0, sumLng = 0, count = 0;
-    for (var j = start; j <= end; j++) {
-      sumLat += points[j][0];
-      sumLng += points[j][1];
-      count++;
-    }
-    return [sumLat / count, sumLng / count];
+    var s = Math.max(0, i-half), e = Math.min(points.length-1, i+half);
+    var sLat=0, sLng=0, c=0;
+    for (var j=s; j<=e; j++) { sLat+=points[j][0]; sLng+=points[j][1]; c++; }
+    return [sLat/c, sLng/c];
   });
 }
 
-function onMapClick(e) {
-  if (mode === 'boundary') {
-    addBoundaryPoint(e.latlng);
-  } else if (mode === 'plant') {
-    pendingLatLng = e.latlng;
-    document.getElementById('plant-form').classList.add('visible');
-    document.getElementById('plant-name').focus();
-    setStatus('Enter plant details in the form above, then click Place on map.');
+function averagePasses(passes) {
+  if (passes.length === 0) return [];
+  if (passes.length === 1) return passes[0];
+  var minLen = Math.min.apply(null, passes.map(function(p){return p.length;}));
+  var result = [];
+  for (var i = 0; i < minLen; i++) {
+    var sLat=0, sLng=0;
+    passes.forEach(function(pass) { sLat+=pass[i][0]; sLng+=pass[i][1]; });
+    result.push([sLat/passes.length, sLng/passes.length]);
   }
+  return result;
+}
+
+function onMapClick(e) {
+  if (mode === 'boundary') addBoundaryPoint(e.latlng);
 }
 
 function setMode(m) {
   mode = m;
   document.getElementById('btn-boundary').classList.toggle('active', m === 'boundary');
-  document.getElementById('btn-plant').classList.toggle('active', m === 'plant');
-  if (m === 'boundary') setStatus('Click on the map to mark each corner of the property boundary. Click near the first corner again to close.');
-  if (m === 'plant') setStatus('Click on the map where the plant is located.');
+  hideAllPanels();
+  if (m === 'boundary') setStatus('Click corners of the property boundary. Click near the first corner to close.');
+  if (m === 'plant') {
+    document.getElementById('plant-panel').classList.add('visible');
+    setStatus('Fill in plant details, then press Take GPS fix and stand at the plant location.');
+  }
+}
+
+function hideAllPanels() {
+  ['path-panel','path-active-panel','plant-panel','export-panel'].forEach(function(id) {
+    document.getElementById(id).classList.remove('visible');
+  });
 }
 
 function addBoundaryPoint(latlng) {
-  if (boundaryPoints.length > 2) {
-    var first = boundaryPoints[0];
-    if (map.distance(latlng, first) < 5) {
-      closeBoundary();
-      return;
-    }
+  if (boundaryPoints.length > 2 && map.distance(latlng, boundaryPoints[0]) < 5) {
+    closeBoundary(); return;
   }
   boundaryPoints.push(latlng);
-  var m = L.circleMarker(latlng, { radius:6, color: COLORS.boundary, fillColor: COLORS.boundary, fillOpacity:1, weight:2 })
+  L.circleMarker(latlng, {radius:5, color:'#1D9E75', fillColor:'#1D9E75', fillOpacity:1, weight:2})
     .bindTooltip('Corner ' + boundaryPoints.length).addTo(map);
-  boundaryMarkers.push(m);
-  updateBoundaryPoly();
-  updateCounts();
-  setStatus('Corner ' + boundaryPoints.length + ' marked. ' + (boundaryPoints.length > 2 ? 'Click near the first corner to close, or keep adding corners.' : 'Keep clicking corners.'));
-}
-
-function updateBoundaryPoly() {
   if (boundaryPoly) map.removeLayer(boundaryPoly);
-  if (boundaryPoints.length > 1) {
-    boundaryPoly = L.polyline(boundaryPoints, { color: COLORS.boundary, weight:2, dashArray:'6,4' }).addTo(map);
-  }
+  if (boundaryPoints.length > 1)
+    boundaryPoly = L.polyline(boundaryPoints, {color:'#1D9E75', weight:2, dashArray:'6,4'}).addTo(map);
+  updateCounts();
+  setStatus('Corner ' + boundaryPoints.length + ' marked.' + (boundaryPoints.length > 2 ? ' Click near corner 1 to close.' : ' Keep clicking corners.'));
 }
 
 function closeBoundary() {
   if (boundaryPoly) map.removeLayer(boundaryPoly);
-  boundaryPoly = L.polygon(boundaryPoints, { color: COLORS.boundary, weight:2, fillColor: COLORS.boundary, fillOpacity:0.08 }).addTo(map);
+  boundaryPoly = L.polygon(boundaryPoints, {color:'#1D9E75', weight:2, fillColor:'#1D9E75', fillOpacity:0.08}).addTo(map);
   mode = null;
   document.getElementById('btn-boundary').classList.remove('active');
-  setStatus('Boundary closed with ' + boundaryPoints.length + ' corners. You can now map paths or plants.');
+  setStatus('Boundary closed with ' + boundaryPoints.length + ' corners.');
   updateCounts();
 }
 
-function togglePath() {
-  if (!pathActive) { startPath(); } else { stopPath(); }
-}
-
-function startPath() {
-  if (!navigator.geolocation) { setStatus('GPS not available on this device.'); return; }
-  pathActive = true;
+function showPathPanel() {
+  hideAllPanels();
   mode = null;
-  document.getElementById('btn-path').textContent = 'Stop path';
+  document.getElementById('path-panel').classList.add('visible');
+  document.getElementById('path-name').focus();
+  setStatus('Name this path, then press Start walking.');
+}
+
+function hidePathPanel() {
+  document.getElementById('path-panel').classList.remove('visible');
+  setStatus('Choose a mode to begin.');
+}
+
+function startNewPath() {
+  var name = document.getElementById('path-name').value.trim() || ('Path ' + (paths.length + 1));
+  var color = PATH_COLORS[paths.length % PATH_COLORS.length];
+  currentPath = { name: name, color: color, passes: [], currentPassPoints: [], currentPassActive: false, line: null, watchId: null };
+  document.getElementById('path-panel').classList.remove('visible');
+  document.getElementById('path-active-panel').classList.add('visible');
+  document.getElementById('path-active-label').textContent = name;
+  startPass();
+}
+
+function startPass() {
+  if (!navigator.geolocation) { setStatus('GPS not available.'); return; }
+  currentPath.currentPassPoints = [];
+  currentPath.currentPassActive = true;
+  var passNum = currentPath.passes.length + 1;
+  document.getElementById('path-pass-label').textContent = 'Pass ' + passNum + ' — walking';
   document.getElementById('btn-path').classList.add('active');
-  setStatus('Walking path — move along the path. GPS is tracking your position.');
+  setStatus('Walking "' + currentPath.name + '" — pass ' + passNum + '. Walk the full path then press Add pass or Finish path.');
 
-  pathWatchId = navigator.geolocation.watchPosition(function(pos) {
+  currentPath.watchId = navigator.geolocation.watchPosition(function(pos) {
     var latlng = [pos.coords.latitude, pos.coords.longitude];
-    var minDist = getMinDist();
-
-    if (rawPathPoints.length > 0) {
-      var last = rawPathPoints[rawPathPoints.length - 1];
-      if (haversineDistance(last, latlng) < minDist) return;
-    }
-
-    rawPathPoints.push(latlng);
-
-    var smoothed = movingAverage(rawPathPoints, getSmoothPts());
-    smoothedPathPoints = smoothed;
-
-    if (pathLine) map.removeLayer(pathLine);
-    pathLine = L.polyline(smoothedPathPoints, { color: COLORS.path, weight:4, opacity:0.8 }).addTo(map);
-    map.panTo(latlng);
+    var pts = currentPath.currentPassPoints;
+    if (pts.length > 0 && haversineDistance(pts[pts.length-1], latlng) < getMinDist()) return;
+    pts.push(latlng);
+    drawCurrentPath();
     updateCounts();
-  }, function(err) {
-    setStatus('GPS error: ' + err.message + '. Try moving outside.');
-  }, { enableHighAccuracy: true, maximumAge: 1000, timeout: 15000 });
+  }, null, { enableHighAccuracy: true, maximumAge: 1000 });
 }
 
-function stopPath() {
-  pathActive = false;
-  document.getElementById('btn-path').textContent = 'Start path';
+function addPass() {
+  if (!currentPath) return;
+  navigator.geolocation.clearWatch(currentPath.watchId);
+  if (currentPath.currentPassPoints.length > 1) {
+    currentPath.passes.push(currentPath.currentPassPoints.slice());
+    var passNum = currentPath.passes.length + 1;
+    setStatus('Pass ' + (passNum-1) + ' recorded. Starting pass ' + passNum + '.');
+    document.getElementById('path-pass-label').textContent = 'Pass ' + passNum + ' — walking';
+    startPass();
+  } else {
+    setStatus('Not enough points recorded — keep walking and try again.');
+  }
+}
+
+function finishPath() {
+  if (!currentPath) return;
+  navigator.geolocation.clearWatch(currentPath.watchId);
+  if (currentPath.currentPassPoints.length > 1) {
+    currentPath.passes.push(currentPath.currentPassPoints.slice());
+  }
+  if (currentPath.passes.length === 0) { setStatus('No path points recorded.'); return; }
+
+  var averaged = averagePasses(currentPath.passes);
+  var smoothed = movingAverage(averaged, getSmoothPts());
+  currentPath.finalPoints = smoothed;
+
+  if (currentPath.line) map.removeLayer(currentPath.line);
+  currentPath.line = L.polyline(smoothed, {color: currentPath.color, weight:4, opacity:0.85})
+    .bindTooltip(currentPath.name).addTo(map);
+
+  paths.push(currentPath);
+  currentPath = null;
+  document.getElementById('path-active-panel').classList.remove('visible');
   document.getElementById('btn-path').classList.remove('active');
-  if (pathWatchId) navigator.geolocation.clearWatch(pathWatchId);
-  setStatus('Path recorded with ' + rawPathPoints.length + ' raw points, smoothed to ' + smoothedPathPoints.length + ' points.');
+  document.getElementById('path-name').value = '';
+  setStatus('Path saved. ' + paths.length + ' path' + (paths.length > 1 ? 's' : '') + ' recorded.');
+  updateCounts();
+  renderPathList();
+  updateExportSelect();
 }
 
-function confirmPlant() {
+function drawCurrentPath() {
+  if (!currentPath) return;
+  if (currentPath.passes.length === 0 && currentPath.currentPassPoints.length > 1) {
+    if (currentPath.line) map.removeLayer(currentPath.line);
+    currentPath.line = L.polyline(currentPath.currentPassPoints, {color: currentPath.color, weight:3, opacity:0.6, dashArray:'4,4'}).addTo(map);
+  }
+}
+
+function startPlantFix() {
   var name = document.getElementById('plant-name').value.trim();
-  if (!name) { alert('Please enter a plant name.'); return; }
-  var type = document.getElementById('plant-type').value;
-  var notes = document.getElementById('plant-notes').value.trim();
-  var latlng = pendingLatLng;
-  var color = COLORS[type] || COLORS.feature;
-  var marker = L.circleMarker(latlng, { radius:8, color: color, fillColor: color, fillOpacity:0.9, weight:2 })
-    .bindPopup('<strong>' + name + '</strong><br><em>' + type + '</em>' + (notes ? '<br>' + notes : ''))
+  if (!name) { alert('Please enter a plant name first.'); return; }
+  pendingPlantName = name;
+  pendingPlantType = document.getElementById('plant-type').value;
+  pendingPlantNotes = document.getElementById('plant-notes').value.trim();
+  fixReadings = [];
+  document.getElementById('gps-overlay').classList.add('visible');
+  document.getElementById('fix-progress').style.width = '0%';
+  document.getElementById('fix-acc').textContent = '— m';
+  document.getElementById('fix-count').textContent = '0 / ' + fixTarget + ' fixes';
+  document.getElementById('overlay-title').textContent = 'Fixing: ' + pendingPlantName;
+
+  fixWatchId = navigator.geolocation.watchPosition(function(pos) {
+    fixReadings.push({ lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy });
+    var pct = Math.min(100, Math.round(fixReadings.length / fixTarget * 100));
+    document.getElementById('fix-progress').style.width = pct + '%';
+    var avgAcc = fixReadings.reduce(function(s,r){return s+r.acc;},0) / fixReadings.length;
+    document.getElementById('fix-acc').textContent = avgAcc.toFixed(1) + ' m accuracy';
+    document.getElementById('fix-count').textContent = fixReadings.length + ' / ' + fixTarget + ' fixes';
+    if (fixReadings.length >= fixTarget) {
+      navigator.geolocation.clearWatch(fixWatchId);
+      confirmFix();
+    }
+  }, function(err) {
+    setStatus('GPS error: ' + err.message);
+    document.getElementById('gps-overlay').classList.remove('visible');
+  }, { enableHighAccuracy: true, maximumAge: 0 });
+}
+
+function confirmFix() {
+  var avgLat = fixReadings.reduce(function(s,r){return s+r.lat;},0) / fixReadings.length;
+  var avgLng = fixReadings.reduce(function(s,r){return s+r.lng;},0) / fixReadings.length;
+  var avgAcc = fixReadings.reduce(function(s,r){return s+r.acc;},0) / fixReadings.length;
+  document.getElementById('gps-overlay').classList.remove('visible');
+  var latlng = L.latLng(avgLat, avgLng);
+  var color = PLANT_COLORS[pendingPlantType] || PLANT_COLORS.feature;
+  var marker = L.circleMarker(latlng, {radius:9, color:color, fillColor:color, fillOpacity:0.9, weight:2})
+    .bindPopup('<strong>' + pendingPlantName + '</strong><br><em>' + pendingPlantType + '</em>' +
+      (pendingPlantNotes ? '<br>' + pendingPlantNotes : '') +
+      '<br><small>GPS accuracy: ±' + avgAcc.toFixed(1) + 'm</small>')
     .addTo(map);
   marker.openPopup();
-  plants.push({ name: name, type: type, notes: notes, latlng: latlng, marker: marker });
-  cancelPlant();
+  plants.push({ name:pendingPlantName, type:pendingPlantType, notes:pendingPlantNotes, latlng:latlng, accuracy:avgAcc, marker:marker });
+  document.getElementById('plant-name').value = '';
+  document.getElementById('plant-notes').value = '';
   updateCounts();
-  setStatus(name + ' added. Click Add plant / tree to place another.');
+  updateExportSelect();
+  setStatus(pendingPlantName + ' placed at ±' + avgAcc.toFixed(1) + 'm accuracy. Add another plant or choose a mode.');
+}
+
+function cancelFix() {
+  if (fixWatchId) navigator.geolocation.clearWatch(fixWatchId);
+  document.getElementById('gps-overlay').classList.remove('visible');
+  setStatus('GPS fix cancelled.');
 }
 
 function cancelPlant() {
-  document.getElementById('plant-form').classList.remove('visible');
-  document.getElementById('plant-name').value = '';
-  document.getElementById('plant-notes').value = '';
-  pendingLatLng = null;
+  hideAllPanels();
   mode = null;
-  document.getElementById('btn-plant').classList.remove('active');
+  setStatus('Choose a mode to begin.');
 }
 
-function clearAll() {
-  if (!confirm('Clear all mapped data?')) return;
-  boundaryMarkers.forEach(function(m) { map.removeLayer(m); });
-  if (boundaryPoly) map.removeLayer(boundaryPoly);
-  if (pathLine) map.removeLayer(pathLine);
-  plants.forEach(function(p) { if (p.marker) map.removeLayer(p.marker); });
-  boundaryPoints = []; boundaryMarkers = []; boundaryPoly = null;
-  rawPathPoints = []; smoothedPathPoints = []; pathLine = null; plants = [];
-  updateCounts();
-  setStatus('All data cleared.');
+function renderPathList() {
+  var html = paths.map(function(p) {
+    return '<div class="path-item"><div class="path-swatch" style="background:' + p.color + '"></div>' +
+      '<span>' + p.name + ' (' + p.passes.length + ' pass' + (p.passes.length>1?'es':'') + ', ' + (p.finalPoints ? p.finalPoints.length : 0) + ' pts)</span></div>';
+  }).join('');
+  document.getElementById('path-list').innerHTML = html;
 }
 
-function exportData() {
-  var features = [];
-  if (boundaryPoints.length > 2) {
-    var coords = boundaryPoints.map(function(p) { return [p.lng, p.lat]; });
-    coords.push(coords[0]);
-    features.push({ type:'Feature', properties:{ type:'boundary' }, geometry:{ type:'Polygon', coordinates:[coords] } });
-  }
-  if (smoothedPathPoints.length > 1) {
-    features.push({ type:'Feature', properties:{ type:'path' }, geometry:{ type:'LineString', coordinates: smoothedPathPoints.map(function(p) { return [p[1], p[0]]; }) } });
-  }
-  plants.forEach(function(p) {
-    features.push({ type:'Feature', properties:{ name:p.name, type:p.type, notes:p.notes }, geometry:{ type:'Point', coordinates:[p.latlng.lng, p.latlng.lat] } });
+function updateExportSelect() {
+  var sel = document.getElementById('export-select');
+  while (sel.options.length > 1) sel.remove(1);
+  paths.forEach(function(p, i) {
+    var opt = document.createElement('option');
+    opt.value = 'path_' + i;
+    opt.textContent = 'Path: ' + p.name;
+    sel.appendChild(opt);
   });
-  var geojson = JSON.stringify({ type:'FeatureCollection', features: features }, null, 2);
-  var blob = new Blob([geojson], { type:'application/json' });
+  var opt2 = document.createElement('option');
+  opt2.value = 'plants';
+  opt2.textContent = 'Plants only';
+  sel.appendChild(opt2);
+  var opt3 = document.createElement('option');
+  opt3.value = 'boundary';
+  opt3.textContent = 'Boundary only';
+  sel.appendChild(opt3);
+}
+
+function showExportPanel() {
+  hideAllPanels();
+  document.getElementById('export-panel').classList.add('visible');
+}
+
+function doExport() {
+  var val = document.getElementById('export-select').value;
+  var features = [];
+
+  if (val === 'all' || val === 'boundary') {
+    if (boundaryPoints.length > 2) {
+      var coords = boundaryPoints.map(function(p){return [p.lng,p.lat];});
+      coords.push(coords[0]);
+      features.push({type:'Feature', properties:{type:'boundary'}, geometry:{type:'Polygon', coordinates:[coords]}});
+    }
+  }
+  if (val === 'all') {
+    paths.forEach(function(p) {
+      if (p.finalPoints && p.finalPoints.length > 1)
+        features.push({type:'Feature', properties:{type:'path', name:p.name}, geometry:{type:'LineString', coordinates:p.finalPoints.map(function(pt){return [pt[1],pt[0]];})}});
+    });
+  }
+  if (val.indexOf('path_') === 0) {
+    var idx = parseInt(val.replace('path_',''));
+    var p = paths[idx];
+    if (p && p.finalPoints && p.finalPoints.length > 1)
+      features.push({type:'Feature', properties:{type:'path', name:p.name}, geometry:{type:'LineString', coordinates:p.finalPoints.map(function(pt){return [pt[1],pt[0]];})}});
+  }
+  if (val === 'all' || val === 'plants') {
+    plants.forEach(function(p) {
+      features.push({type:'Feature', properties:{name:p.name, type:p.type, notes:p.notes, accuracy_m:parseFloat(p.accuracy.toFixed(2))}, geometry:{type:'Point', coordinates:[p.latlng.lng, p.latlng.lat]}});
+    });
+  }
+
+  var geojson = JSON.stringify({type:'FeatureCollection', features:features}, null, 2);
+  var blob = new Blob([geojson], {type:'application/json'});
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'garden-map.geojson';
@@ -297,10 +464,25 @@ function exportData() {
   setStatus('GeoJSON exported successfully.');
 }
 
+function clearAll() {
+  if (!confirm('Clear all mapped data?')) return;
+  if (boundaryPoly) map.removeLayer(boundaryPoly);
+  paths.forEach(function(p){if(p.line) map.removeLayer(p.line);});
+  plants.forEach(function(p){if(p.marker) map.removeLayer(p.marker);});
+  map.eachLayer(function(l){ if(l instanceof L.CircleMarker){try{map.removeLayer(l);}catch(e){}} });
+  boundaryPoints=[]; boundaryPoly=null; paths=[]; plants=[];
+  currentPath=null;
+  hideAllPanels();
+  updateCounts();
+  renderPathList();
+  updateExportSelect();
+  setStatus('All data cleared.');
+}
+
 function setStatus(msg) { document.getElementById('status').textContent = msg; }
 function updateCounts() {
   document.getElementById('cnt-corners').textContent = boundaryPoints.length;
-  document.getElementById('cnt-path').textContent = rawPathPoints.length;
+  document.getElementById('cnt-paths').textContent = paths.length + (currentPath ? ' (+1 active)' : '');
   document.getElementById('cnt-plants').textContent = plants.length;
 }
 
