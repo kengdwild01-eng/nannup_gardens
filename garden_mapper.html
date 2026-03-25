@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Garden Mapper V1.00</title>
+<title>Garden Mapper V1.01</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
@@ -46,7 +46,7 @@ button:disabled { opacity: 0.4; cursor: default; }
 </head>
 <body>
 
-<h1>Garden Mapper <span style="font-size:13px; font-weight:400; color:#888;">V1.00</span></h1>
+<h1>Garden Mapper <span style="font-size:13px; font-weight:400; color:#888;">V1.01</span></h1>
 
 <div class="count-row">
   <div class="count-card"><span id="cnt-corners">0</span> boundary corners</div>
@@ -75,11 +75,17 @@ button:disabled { opacity: 0.4; cursor: default; }
   <button onclick="hidePathPanel()">Cancel</button>
 </div>
 
-<div class="panel" id="path-active-panel">
-  <span id="path-active-label" style="font-size:13px; font-weight:500; flex:1;"></span>
-  <span id="path-pass-label" style="font-size:12px; color:#666;"></span>
-  <button onclick="addPass()">Add pass</button>
-  <button onclick="finishPath()" style="background:#e6f1fb; color:#185fa5; border-color:#85b7eb;">Finish path</button>
+<div id="path-active-bar" style="display:none; background:#e6f1fb; border:1.5px solid #85b7eb; border-radius:8px; padding:10px 14px; margin:8px 0;">
+  <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+    <div style="width:10px; height:10px; border-radius:50%; background:#378ADD; flex-shrink:0;"></div>
+    <span id="path-active-label" style="font-size:13px; font-weight:500; color:#185fa5; flex:1;"></span>
+    <span id="path-pass-label" style="font-size:12px; color:#185fa5; background:#c8dff5; padding:2px 8px; border-radius:12px;"></span>
+  </div>
+  <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
+    <button onclick="addPass()" style="background:#fff; color:#185fa5; border-color:#85b7eb;">Save pass &amp; walk again</button>
+    <button onclick="finishPath()" style="background:#185fa5; color:#fff; border-color:#185fa5;">Finish path</button>
+    <span id="path-pts-label" style="font-size:12px; color:#185fa5; align-self:center;"></span>
+  </div>
 </div>
 
 <div class="panel" id="plant-panel">
@@ -212,7 +218,7 @@ function setMode(m) {
 }
 
 function hideAllPanels() {
-  ['path-panel','path-active-panel','plant-panel','export-panel'].forEach(function(id) {
+  ['path-panel','plant-panel','export-panel'].forEach(function(id) {
     document.getElementById(id).classList.remove('visible');
   });
 }
@@ -258,7 +264,7 @@ function startNewPath() {
   var color = PATH_COLORS[paths.length % PATH_COLORS.length];
   currentPath = { name: name, color: color, passes: [], currentPassPoints: [], currentPassActive: false, line: null, watchId: null };
   document.getElementById('path-panel').classList.remove('visible');
-  document.getElementById('path-active-panel').classList.add('visible');
+  document.getElementById('path-active-bar').style.display = 'block';
   document.getElementById('path-active-label').textContent = name;
   startPass();
 }
@@ -279,6 +285,7 @@ function startPass() {
     pts.push(latlng);
     drawCurrentPath();
     updateCounts();
+    document.getElementById('path-pts-label').textContent = pts.length + ' pts this pass';
   }, null, { enableHighAccuracy: true, maximumAge: 1000 });
 }
 
@@ -288,8 +295,8 @@ function addPass() {
   if (currentPath.currentPassPoints.length > 1) {
     currentPath.passes.push(currentPath.currentPassPoints.slice());
     var passNum = currentPath.passes.length + 1;
-    setStatus('Pass ' + (passNum-1) + ' recorded. Starting pass ' + passNum + '.');
-    document.getElementById('path-pass-label').textContent = 'Pass ' + passNum + ' — walking';
+    setStatus('Pass ' + (passNum-1) + ' saved (' + currentPath.passes[currentPath.passes.length-1].length + ' points). Now walk pass ' + passNum + ' — press Save pass & walk again when done, or Finish path to complete.');
+    document.getElementById('path-pts-label').textContent = '';
     startPass();
   } else {
     setStatus('Not enough points recorded — keep walking and try again.');
@@ -314,7 +321,7 @@ function finishPath() {
 
   paths.push(currentPath);
   currentPath = null;
-  document.getElementById('path-active-panel').classList.remove('visible');
+  document.getElementById('path-active-bar').style.display = 'none';
   document.getElementById('btn-path').classList.remove('active');
   document.getElementById('path-name').value = '';
   setStatus('Path saved. ' + paths.length + ' path' + (paths.length > 1 ? 's' : '') + ' recorded.');
