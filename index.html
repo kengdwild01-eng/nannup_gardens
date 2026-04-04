@@ -146,7 +146,7 @@ html, body {
       <div class="home-sub">Tap a bed on the map or a card below to explore its plants</div>
     </div>
     <div class="home-body">
-      <div class="map-wrap"><svg id="garden-map" viewBox="0 0 320 440" xmlns="http://www.w3.org/2000/svg">
+      <div class="map-wrap"><svg id="garden-map" viewBox="0 0 320 560" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <filter id="bshadow" x="-20%" y="-20%" width="140%" height="140%">
       <feDropShadow dx="1" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,0.18)"/>
@@ -154,80 +154,112 @@ html, body {
   </defs>
 
   <!-- Ground -->
-  <rect width="320" height="440" fill="#b8d4a8" rx="10"/>
-  <rect x="4" y="4" width="312" height="432" fill="#bcd6ac" rx="8"/>
+  <rect width="320" height="560" fill="#b8d4a8" rx="10"/>
+  <rect x="4" y="4" width="312" height="552" fill="#bcd6ac" rx="8"/>
 
   <!-- BED 5 — 3m E-W — burgundy  (y=87, h=52, bottom=139) -->
-  <rect data-bed="5" x="40" y="87" width="160" height="52" rx="5"
+  <rect data-bed="5" x="40" y="187" width="160" height="52" rx="5"
         fill="#3d0c18" stroke="#c04060" stroke-width="2"
         filter="url(#bshadow)" class="bed-rect"/>
-  <text x="120" y="108" text-anchor="middle"
+  <text x="120" y="208" text-anchor="middle"
         fill="#f8c0cc" font-size="13" font-family="Georgia,serif" font-weight="bold"
         pointer-events="none">5</text>
-  <text x="120" y="123" text-anchor="middle"
+  <text x="120" y="223" text-anchor="middle"
         fill="#f0a0b0" font-size="11" font-family="Georgia,serif"
         pointer-events="none">Climber &amp; Chicory</text>
 
   <!-- BED 4 — 3m N-S left — indigo  (y=159, h=175) -->
-  <rect data-bed="4" x="40" y="159" width="52" height="175" rx="5"
+  <rect data-bed="4" x="40" y="259" width="52" height="175" rx="5"
         fill="#1a0840" stroke="#9060e0" stroke-width="2"
         filter="url(#bshadow)" class="bed-rect"/>
-  <text x="66" y="200" text-anchor="middle"
+  <text x="66" y="300" text-anchor="middle"
         fill="#d8b8f8" font-size="13" font-family="Georgia,serif" font-weight="bold"
-        transform="rotate(-90,66,200)" pointer-events="none">4</text>
-  <text x="66" y="270" text-anchor="middle"
+        transform="rotate(-90,66,300)" pointer-events="none">4</text>
+  <text x="66" y="370" text-anchor="middle"
         fill="#b898e0" font-size="11" font-family="Georgia,serif"
-        transform="rotate(-90,66,270)" pointer-events="none">Shade Larder</text>
+        transform="rotate(-90,66,370)" pointer-events="none">Shade Larder</text>
 
   <!-- BED 3 — 3m N-S middle — amber  (y=159, h=175) -->
-  <rect data-bed="3" x="136" y="159" width="52" height="175" rx="5"
+  <rect data-bed="3" x="136" y="259" width="52" height="175" rx="5"
         fill="#3a1e04" stroke="#d08030" stroke-width="2"
         filter="url(#bshadow)" class="bed-rect"/>
-  <text x="162" y="200" text-anchor="middle"
+  <text x="162" y="300" text-anchor="middle"
         fill="#f8d898" font-size="13" font-family="Georgia,serif" font-weight="bold"
-        transform="rotate(-90,162,200)" pointer-events="none">3</text>
-  <text x="162" y="270" text-anchor="middle"
+        transform="rotate(-90,162,300)" pointer-events="none">3</text>
+  <text x="162" y="370" text-anchor="middle"
         fill="#e0b060" font-size="11" font-family="Georgia,serif"
-        transform="rotate(-90,162,270)" pointer-events="none">Jewel Bed</text>
+        transform="rotate(-90,162,370)" pointer-events="none">Jewel Bed</text>
 
   <!-- BED 1 — 12m N-S right — forest green
        North end extends 52px (= Bed 5 height) above Bed 5 north edge (y=100)
        So top = 100-52 = 48, bottom = old 326+60 = 386, height = 338 -->
-  <rect data-bed="1" x="232" y="48" width="52" height="338" rx="5"
+  <rect data-bed="1" x="232" y="148" width="52" height="338" rx="5"
         fill="#0a2408" stroke="#50a838" stroke-width="2"
         filter="url(#bshadow)" class="bed-rect"/>
-  <text x="258" y="90" text-anchor="middle"
+  <text x="258" y="190" text-anchor="middle"
         fill="#b8f098" font-size="13" font-family="Georgia,serif" font-weight="bold"
-        transform="rotate(-90,258,90)" pointer-events="none">1</text>
-  <text x="258" y="200" text-anchor="middle"
+        transform="rotate(-90,258,190)" pointer-events="none">1</text>
+  <text x="258" y="300" text-anchor="middle"
         fill="#80d860" font-size="11" font-family="Georgia,serif"
-        transform="rotate(-90,258,200)" pointer-events="none">Hillside Bed</text>
+        transform="rotate(-90,258,300)" pointer-events="none">Hillside Bed</text>
 
   <!-- BED 2 — Asian Kitchen — teal
        Width extended so east edge (40+244=284) aligns with Bed 1 east edge (232+52=284) -->
-  <rect data-bed="2" x="40" y="354" width="244" height="52" rx="5"
+  <rect data-bed="2" x="40" y="454" width="244" height="52" rx="5"
         fill="#062418" stroke="#30b880" stroke-width="2"
         filter="url(#bshadow)" class="bed-rect"/>
-  <text x="162" y="375" text-anchor="middle"
+  <text x="162" y="475" text-anchor="middle"
         fill="#98f8d8" font-size="13" font-family="Georgia,serif" font-weight="bold"
         pointer-events="none">2</text>
-  <text x="162" y="390" text-anchor="middle"
+  <text x="162" y="490" text-anchor="middle"
         fill="#60d8a8" font-size="11" font-family="Georgia,serif"
         pointer-events="none">Asian Kitchen</text>
 
   <!-- ARCH — Bed 5 east end to Bed 1 west side — Sweet Pea Matucana -->
-  <path d="M200,100 L200,87 Q216,72 232,87 L232,100"
+  <path d="M200,200 L200,187 Q216,172 232,187 L232,200"
         fill="none" stroke="#7a5428" stroke-width="3.5" stroke-linecap="round"/>
 
   <!-- ARCH — Bed 4 east to Bed 3 west — Purple Podded Pea -->
-  <path d="M92,185 L92,163 Q114,148 136,163 L136,185"
+  <path d="M92,285 L92,263 Q114,248 136,263 L136,285"
         fill="none" stroke="#7a5428" stroke-width="3.5" stroke-linecap="round"/>
 
   <!-- ARCH — Bed 3 east to Bed 1 west — Yakumo Giant Pea -->
-  <path d="M188,185 L188,163 Q210,148 232,163 L232,185"
+  <path d="M188,285 L188,263 Q210,248 232,263 L232,285"
         fill="none" stroke="#7a5428" stroke-width="3.5" stroke-linecap="round"/>
 
-  <g transform="translate(290,410)">
+  <!-- BED 6 — Kitchen & Potato Bed — 5m E-W — brown/ochre y=20 h=40 -->
+  <!-- Apple tree symbol west of bed -->
+  <circle cx="24" cy="40" r="10" fill="#285010" opacity="0.85"/>
+  <line x1="24" y1="50" x2="24" y2="58" stroke="#5a3810" stroke-width="2"/>
+  <text x="24" y="67" text-anchor="middle" fill="#285010" font-size="7" font-family="Georgia,serif">apple</text>
+
+  <rect data-bed="6" x="36" y="20" width="244" height="40" rx="5"
+        fill="#2c1a08" stroke="#9a7040" stroke-width="2"
+        filter="url(#bshadow)" class="bed-rect"/>
+  <text x="158" y="37" text-anchor="middle"
+        fill="#f0d898" font-size="13" font-family="Georgia,serif" font-weight="bold"
+        pointer-events="none">6</text>
+  <text x="158" y="52" text-anchor="middle"
+        fill="#c8a860" font-size="10" font-family="Georgia,serif"
+        pointer-events="none">Kitchen &amp; Potato</text>
+
+  <!-- Shade zone at west end of Bed 6 (apple tree shade) -->
+  <rect x="36" y="20" width="60" height="40" rx="5" fill="#1a2808" opacity="0.5" pointer-events="none"/>
+
+  <!-- STEPS — 4 risers running W-E, overlaying path just north of Bed 1 (y=148) -->
+  <!-- Steps centred on path x=280, sitting y=128 to y=143, leaving ~5px gap above bed -->
+  <text x="258" y="127" text-anchor="middle" fill="#7a6040" font-size="7" font-family="Georgia,serif" font-style="italic">steps</text>
+  <rect x="262" y="130" width="9" height="7" rx="1" fill="#c8b890" stroke="#9a8060" stroke-width="0.8"/>
+  <rect x="271" y="132" width="9" height="7" rx="1" fill="#c8b890" stroke="#9a8060" stroke-width="0.8"/>
+  <rect x="280" y="134" width="9" height="7" rx="1" fill="#c8b890" stroke="#9a8060" stroke-width="0.8"/>
+  <rect x="289" y="136" width="9" height="7" rx="1" fill="#c8b890" stroke="#9a8060" stroke-width="0.8"/>
+
+  <!-- N-S path from Bed 6 east end (x=280, y=60) south to Bed 1 north (y=148) -->
+  <line x1="280" y1="60" x2="280" y2="148" stroke="#9a8060" stroke-width="2" stroke-dasharray="4,3"/>
+  <text x="292" y="100" fill="#7a6040" font-size="7" font-family="Georgia,serif" font-style="italic">path</text>
+
+
+  <g transform="translate(290,510)">
     <circle cx="0" cy="0" r="16" fill="#f5f0e4" stroke="#6a5030" stroke-width="1.5"/>
     <polygon points="0,-11 2.5,-4 -2.5,-4" fill="#c03020"/>
     <polygon points="0,11 2.5,4 -2.5,4" fill="#8a7050"/>
@@ -277,11 +309,11 @@ const BEDS = {
   "1": {
     "name": "The Hillside Bed",
     "nickname": "Bed One",
-    "dims": "12m × 1m · North–South · Full sun · East hillside · Red Orach at south end · Rhubarb 2m from south end",
+    "dims": "12m × 1m · North–South · Full sun · East hillside · Purple Orach at south end · Rhubarb 2m from south end",
     "color": "#1e5c14",
     "light": "#6abf54",
     "bg": "#e8f0df",
-    "character": "Architectural drama at the north end with artichoke and purple cauliflower visible across the lawn. Deepening into dark brassicas through the middle, with established rhubarb 2m from the south, and red orach anchoring the far south end.",
+    "character": "Architectural drama at the north end with artichoke and purple cauliflower visible across the lawn. Deepening into dark brassicas through the middle, with established rhubarb 2m from the south, and purple orach anchoring the far south end.",
     "plants": [
       7,
       3,
@@ -324,10 +356,9 @@ const BEDS = {
     "color": "#8a4c08",
     "light": "#e8a84a",
     "bg": "#f5eedd",
-    "character": "Candy-stripe beetroot, giant parsley, and the extraordinary Yakumo Giant pea climbing the eastern arch with enormous flat pods. Romanesco stands sentinel at the south end.",
+    "character": "Candy-stripe beetroot, purple sprouting broccoli anchoring the north end, and the extraordinary Yakumo Giant pea climbing the eastern arch with enormous flat pods. Romanesco stands sentinel at the south end.",
     "plants": [
       18,
-      19,
       5,
       17,
       21,
@@ -359,13 +390,27 @@ const BEDS = {
     "color": "#8a0c24",
     "light": "#f09aaa",
     "bg": "#f5e8ec",
-    "character": "The fragrant entrance — Matucana on the arch, wine-red radicchio below, snap peas on the south-face mesh, near-black violas at the front edge.",
+    "character": "The fragrant entrance — Matucana on the arch, wine-red radicchio below, Frank's Pea on the south-face mesh, mixed giant pansies edging the front.",
     "plants": [
       32,
       31,
       29,
       30,
       33
+    ]
+  },
+  "6": {
+    "name": "The Kitchen Bed",
+    "nickname": "Bed Six",
+    "dims": "5m × 0.5m · East–West · Sheltered · Apple tree on west end · Access via steps from north",
+    "color": "#5a3e1a",
+    "light": "#b08848",
+    "bg": "#f5f0e8",
+    "character": "A productive working bed reached by four steps from the north. Italian Giant Parsley in the sheltered shade of the apple tree at the west end, potatoes earthed up through the middle, and Broad Bean Early Long Pod along the north back edge — black and white flowers through winter, pods ready for August.",
+    "plants": [
+      19,
+      41,
+      42
     ]
   }
 };
@@ -630,7 +675,7 @@ A chef with any affinity for Asian technique will be delighted to see them growi
     name: `Viola — white`,
     latin: `Viola × wittrockiana`,
     qty: `8 plants`,
-    tag: `Over dormant rhizomes`,
+    tag: `White only · Over dormant rhizomes · Bed 2`,
     color: `#c8c4a0`,
     emoji: `🌸`,
     oneliner: `Planted over the sleeping rhizomes as a winter carpet — a theatrical gesture of seasonal storytelling. Edible petals.`,
@@ -697,7 +742,7 @@ It is the aromatic base of gremolata (with lemon and garlic), the essential comp
     growing: `Sow seed March–June in a sunny position or start in punnets and transplant at 5cm. Space final plants 20–25cm apart. Slow to establish from seed — allow 3 months before expecting substantial harvests. Prefers rich, well-drained soil with consistent moisture. Harvest outer stems regularly from the base. A biennial that will flower and set seed in its second year — collect seed for the following season.`
   },
   40: {
-    name: `Red Orach`,
+    name: `Purple Orach`,
     latin: `Atriplex hortensis var. rubra`,
     qty: `1 plant`,
     tag: `South end · Bed 1`,
@@ -705,10 +750,10 @@ It is the aromatic base of gremolata (with lemon and garlic), the essential comp
     emoji: `🌿`,
     oneliner: `A close relative of quinoa — fast-growing, deeply burgundy-red, architectural and edible at every stage. Direct-sown now for a bold August display.`,
     origin: `Central Asia and Europe · cultivated since antiquity · once a staple before spinach displaced it`,
-    history: `Red orach — mountain spinach, or in French arroche — has been cultivated since antiquity across Europe and Central Asia, where it was a staple leaf vegetable before spinach gradually displaced it from the sixteenth century onward. It belongs to the same family as spinach, beetroot, chard and quinoa — a group of plants domesticated across widely separated regions that share the same botanical tribe and similar nutritional profiles.
+    history: `Purple orach — mountain spinach, or in French arroche — has been cultivated since antiquity across Europe and Central Asia, where it was a staple leaf vegetable before spinach gradually displaced it from the sixteenth century onward. It belongs to the same family as spinach, beetroot, chard and quinoa — a group of plants domesticated across widely separated regions that share the same botanical tribe and similar nutritional profiles.
 
-The red form selects for the anthocyanin pigmentation that suffuses the leaves and stems in deep burgundy-red. It grows rapidly in cool conditions, making it one of the most reliable fast-establishment plants for a winter kitchen garden, and reaches 60–90cm with an upright, arrow-shaped habit that provides height without the horizontal spread of a larger perennial.`,
-    kitchen: `Young leaves are mild and slightly earthy — pleasant raw in salads, where the deep red colour is the main event. A handful of red orach leaves scattered through a green salad transforms it visually; the colour holds well even after dressing. Mature leaves wilt beautifully and can be used anywhere spinach or chard would be: sautéed in butter, folded into a frittata, stirred through pasta.
+The purple form selects for the anthocyanin pigmentation that suffuses the leaves and stems in deep burgundy-red. It grows rapidly in cool conditions, making it one of the most reliable fast-establishment plants for a winter kitchen garden, and reaches 60–90cm with an upright, arrow-shaped habit that provides height without the horizontal spread of a larger perennial.`,
+    kitchen: `Young leaves are mild and slightly earthy — pleasant raw in salads, where the deep burgundy-purple colour is the main event. A handful of purple orach leaves scattered through a green salad transforms it visually; the colour holds well even after dressing. Mature leaves wilt beautifully and can be used anywhere spinach or chard would be: sautéed in butter, folded into a frittata, stirred through pasta.
 
 The stems can be pickled briefly in light vinegar brine, which turns them a vivid pink. The seed heads, when they develop, are edible and can be used like quinoa — a close botanical relative. For Guy Jeffreys, the visual impact of the raw leaf on a composed plate is its most immediate contribution.`,
     growing: `Direct sow now in March at the south end of Bed 1. Sow seed 1cm deep and thin to 30cm spacing once established. Germinates in 10–14 days in cool soil. Grows rapidly in cool autumn conditions — one of its strengths. By August expect plants at 60–90cm, upright and deeply coloured. Harvest outer leaves continuously to extend the productive period and prevent premature bolting.`
@@ -779,7 +824,7 @@ It forms upright romaine heads with deep bronze-red outer leaves that deepen fur
     kitchen: `The flavour is fuller and slightly more bitter than modern soft lettuces — more characteristic of what lettuce actually tastes like when grown in cold conditions and allowed to develop properly.
 
 In French cuisine it appears most naturally in the classic salade composée of bistro cooking: torn leaves, lardons, a poached egg and a warm vinegar dressing poured over at the table so that it just wilts the outer leaves while the inner remain crisp.`,
-    growing: `Sow seed March–May in punnets and transplant at 4–5 leaf stage, spacing 25–30cm apart. The deep red colouring develops most intensely in cool conditions — plants started in March will be at peak colour by August. Prefers full sun in winter and tolerates partial shade. Keep consistently moist. More bolt-resistant than many heritage lettuces; will stand in good condition well into October in Nannup.`
+    growing: `Sow seed March–May in punnets and transplant at 4–5 leaf stage, spacing 25–30cm apart. The deep burgundy-purple colouring develops most intensely in cool conditions — plants started in March will be at peak colour by August. Prefers full sun in winter and tolerates partial shade. Keep consistently moist. More bolt-resistant than many heritage lettuces; will stand in good condition well into October in Nannup.`
   },
   25: {
     name: `Spinach 'Bloomsdale'`,
@@ -850,21 +895,21 @@ Crystallised in egg white and caster sugar, the deep purple petals become exquis
     growing: `Plant seedlings in autumn, spacing 15–20cm apart along bed edges. Prefers full sun and well-drained soil. The near-black colouring is most intense in cool weather — August is the peak. Deadhead spent flowers regularly. Tolerates light frosts. Like all pansies, will begin to decline in quality as temperatures rise in October; replace with summer annuals at that point.`
   },
   29: {
-    name: `Sugar Snap Pea 'Cascadia'`,
-    latin: `Pisum sativum 'Cascadia'`,
+    name: `Frank's Pea`,
+    latin: `Pisum sativum 'Frank's'`,
     qty: `10 seeds on mesh`,
     tag: `Wire mesh · North face Bed 5`,
     color: `#309828`,
     emoji: `🫛`,
-    oneliner: `Introduced commercially in 1979 — a modern variety on an ancient crop. Pick one off the mesh and eat it on the spot. Nothing is better.`,
-    origin: `Pacific Northwest, USA · introduced 1979 by Oregon State University`,
-    history: `The sugar snap pea — where both the pod and the fully developed peas inside are tender and edible — is a relatively modern development, introduced commercially in 1979 after a breeding programme by Dr. Calvin Lamborn at Oregon State University. Working from an ancient recessive gene for thickened pod walls present in the pea genome for thousands of years, Lamborn combined it with a stringless characteristic to create the original Sugar Snap, which became an immediate sensation.
+    oneliner: `An 1853 Australian heirloom saved by a family for generations and shared with Diggers members by May Barnes. Spectacular mauve flowers, sweet snap pods, and a story of living seed heritage.`,
+    origin: `Australia · circa 1853 · family heirloom shared via the Diggers Club by May Barnes`,
+    history: `Frank's Pea is one of the most personally resonant heirlooms in the Diggers Club collection — an 1853 Australian variety preserved within a single family for over 170 years before Diggers member May Barnes generously shared it with the wider seed-saving community. The variety predates Australia's federation, placing it among the oldest documented Australian vegetable heirlooms in active cultivation.
 
-'Cascadia' is a subsequent variety developed in the Pacific Northwest, bred for disease resistance and for the cooler, wetter conditions of that region. It is considered by many growers to have superior flavour to the original — the pods sweeter, the wall thicker and more succulent.`,
-    kitchen: `The genius of the sugar snap for a garden visit is immediacy: a visitor reaches up to the mesh, picks a fat pod warm from the vine, and eats it on the spot. The flavour at this moment — grassy, sweet, with a satisfying crunch — is what peas taste like when they are perfect.
+Its survival through generations of a single family is a reminder that seed saving is an act of care as much as horticulture — every packet of Frank's Pea carries the accumulated attention of the people who grew it, saved it, and passed it on. The mauve flowers are a particularly distinctive feature, making the plant ornamental as well as productive in a way that most modern snap peas are not.`,
+    kitchen: `Frank's Pea is a dual-purpose variety — picked young it is a sweet snap pea, pod and all; left to mature the peas inside shell out as a sweet shelling pea. This flexibility is characteristic of older varieties bred for the kitchen garden rather than the commercial harvest, where the grower makes daily judgements about what the plant offers rather than following a fixed harvest protocol.
 
-In the kitchen: blanch for sixty seconds and toss with brown butter and tarragon. Or slice diagonally raw into a prawn salad. Or split open and scatter over a ricotta crostini. They decline rapidly after harvesting and should always be cooked the day they are picked.`,
-    growing: `Sow seed April–May at the base of the wire mesh, 3cm deep, spacing 8–10cm apart. Keep consistently moist during germination and throughout the season — irregular moisture causes tough, stringy pods. The mesh provides ideal support for the climbing tendrils. Harvest pods every 2–3 days when plump and rounded; leaving pods too long on the plant reduces production significantly. One of the most rewarding crops for the effort involved.`
+The genius of any snap pea for a garden visit is immediacy — a visitor reaches up to the mesh, picks a pod warm from the vine, and eats it on the spot. The flavour at this moment is what peas taste like when they are perfect. In the kitchen: blanch briefly and toss with butter and mint, or slice raw into a salad. Always cook the day they are picked.`,
+    growing: `Sow seed directly at the base of the wire mesh, 3cm deep, spacing 8–10cm apart. Keep consistently moist during germination and throughout the season. The mesh provides ideal support for climbing tendrils. Harvest pods every 2–3 days — when young as snap peas, or when fully developed as shelling peas. The mauve flowers appear several weeks before the pods, providing ornamental value on the mesh from early winter onward.`
   },
   30: {
     name: `Sweet Pea 'Matucana'`,
@@ -918,21 +963,21 @@ Visually it is extraordinary: the inner heart naturally blanched to a pale cream
     growing: `Sow seed February–March and transplant at 5–6 leaf stage, spacing 30–35cm apart. Prefers partial shade — the natural blanching of the inner heart that makes frisée so beautiful happens best when the outer leaves shade the centre. Full sun produces a greener, more uniformly bitter plant. Keep moderately moist. Harvest the whole head when the inner leaves have blanched pale yellow, typically 10–12 weeks from transplant.`
   },
   33: {
-    name: `Viola 'Black Delight'`,
-    latin: `Viola × wittrockiana 'Black Delight'`,
+    name: `Giant Pansy — mixed`,
+    latin: `Viola × wittrockiana`,
     qty: `3 plants`,
-    tag: `Front edge Bed 5`,
-    color: `#12040e`,
+    tag: `Front edge · Bed 5`,
+    color: `#5820a0`,
     emoji: `🌸`,
-    oneliner: `Near-black with a tiny yellow eye. At the front edge of the most dramatic bed in the garden — the darkest possible full stop.`,
-    origin: `Garden hybrid · extreme selection from Victorian pansy breeding`,
-    history: `'Black Delight' represents the furthest extreme of colour selection in pansy breeding — flowers so deeply purple as to appear almost black, with a tiny yellow eye at the centre that reads like a star in a night sky.
+    oneliner: `Large-flowered Victorian pansies in a rich mix of purples, wines and deep colours — grown from seed, fully edible petals, flowering from June through August at the front edge of the most dramatic bed.`,
+    origin: `Garden hybrid · Victorian England · Viola tricolor as wild ancestor`,
+    history: `The large-flowered pansy — the giant or exhibition pansy — was developed from the small wild heartsease (Viola tricolor) through intensive selective breeding in England during the early nineteenth century. By the 1840s the pansy had become one of the most fashionable flowers in Britain, with specialist growers competing for the darkest, most dramatically marked flowers at shows and exhibitions.
 
-In Bed 5 it sits at the very front edge of the most dramatically planted bed in the garden, providing a dark anchor at the base of the radicchio, frisée and snap peas above — a compositional full stop to the whole sequence of colour rising from the ground up through the wine-red radicchio to the purple arch of Matucana sweet peas above.`,
-    kitchen: `Like all viola petals, the flowers of 'Black Delight' are edible — very mild, slightly grassy, valuable entirely for their appearance rather than flavour.
+These plants were grown from saved seed — a connection to the tradition of saving and selecting pansies that stretches back through Victorian kitchen gardens to the original heartsease of the hedgerow. Mixed colours at the front edge of Bed 5 provide a varied, changing display through the festival period, with each flower slightly different from its neighbours.`,
+    kitchen: `Pansy petals are edible — mild and very slightly grassy, with no significant flavour of their own. Their value in the kitchen is entirely visual: scattered over a composed salad, floated on a pale soup, or pressed into the surface of a white chocolate dessert, they bring a concentrated moment of botanical beauty to the plate.
 
-On a pale dessert plate their near-black colouring is one of the most dramatic garnishes possible. Scattered over a champagne panna cotta, pressed into the surface of a white chocolate tart, or floated in a pale gin cocktail, they create an effect of striking visual restraint — a single dark note that makes everything around it appear more luminous.`,
-    growing: `Plant seedlings in autumn, spacing 15–20cm apart along the front bed edge. Prefers full sun and well-drained soil. The near-black colouring intensifies in cool conditions — at its deepest from June through August. Deadhead spent flowers to maintain a long display season. Tolerates light frosts. Replace with summer annuals when the display quality drops in October.`
+The mixed colours — purples, wines, golds and deep violets — give a chef a range of tones to work with rather than a single note. Crystallised in egg white and caster sugar they make exquisite decorations for celebration cakes.`,
+    growing: `Sow seed indoors on seedling shelf in late March or April, 18–21°C for germination. Cover seed tray in darkness until germination occurs — pansies germinate best in the dark. Prick out when first true leaves appear. Grow on in trays until June, then plant out to front edge of Bed 5, 15–20cm spacing. Full sun preferred. Deadhead spent flowers regularly to extend the display through August and beyond.`
   },
   34: {
     name: `Romanesco Broccoli`,
@@ -1003,6 +1048,40 @@ Young shoots and the rhizomes of Alpinia species are edible and used in Thai, In
 
 By August the plant will be at its most dramatic — tall, architectural, the deep red leaf undersides catching the light as the foliage moves. A chef of Guy Jeffreys' background will recognise the genus immediately and understand its place in the Asian culinary tradition this bed represents.`,
     growing: `Established clump in Bed 2. Alpinia zerumbet prefers a warm, sheltered position with consistent moisture and rich soil — conditions Bed 2 provides. It will die back with frost but in Nannup's mild climate should remain largely evergreen through winter. Divide clumps in spring to propagate. By August the foliage will be lush and full, the red-backed leaves providing strong visual contrast with the greens and purples of the surrounding Asian brassicas.`
+  },
+  42: {
+    name: `Broad Bean 'Early Long Pod'`,
+    latin: `Vicia faba 'Early Long Pod'`,
+    qty: `Sown along north back edge`,
+    tag: `North edge · Bed 6`,
+    color: `#3a5828`,
+    emoji: `🫘`,
+    oneliner: `One of the oldest cultivated plants in the world — broad beans fed ancient Egypt, Greece and Rome. Early Long Pod planted in autumn for July–August harvest, with beautiful black and white flowers through winter.`,
+    origin: `Middle East & Mediterranean · cultivated for at least 8,000 years · among the first domesticated crops`,
+    history: `The broad bean is among the most ancient of all cultivated plants, with archaeological evidence of cultivation stretching back eight thousand years in the Middle East. It was a staple of ancient Egyptian, Greek and Roman diets — one of the few protein-rich crops that could be grown through the cool, wet Mediterranean winter. In Egypt broad beans were so culturally significant they were placed in tombs. The Romans called them faba, giving us the botanical name Vicia faba, and grew them extensively across the empire wherever the climate permitted.
+
+'Early Long Pod' is one of the classic English heritage varieties, bred for autumn sowing and cold tolerance, producing long pods of six to eight large beans. Planted now in March in Nannup, it will flower through the coldest winter months with the distinctive black-and-white flowers that are among the most beautiful of any vegetable plant, and produce pods ready for harvest from July onward — timing that overlaps perfectly with the festival.`,
+    kitchen: `Broad beans have two distinct culinary lives depending on their stage of development. Young pods picked small can be eaten whole, pods and all, stir-fried or steamed with butter. As the beans develop, the pods are shelled and the beans inside used fresh — bright green, sweet and slightly earthy, quite different from the dried or frozen product that most people know.
+
+At the festival in August the beans will be at or approaching harvest — the pods long and heavy, the beans inside at their sweetest before the skin toughens. Fresh broad beans briefly blanched and dressed with olive oil, mint and lemon; folded through a risotto; or pureed with garlic for a bruschetta base — these are among the most satisfying preparations in the spring and early summer kitchen. Double-podding (removing the pale outer skin from each bean to reveal the vivid green interior) is time-consuming but transforms the texture and colour entirely.`,
+    growing: `Sow seeds 5cm deep, 20–25cm apart, along the north back edge of Bed 6. They are already planted — ensure they are well watered in after sowing. Broad beans grow to 80–120cm and may need staking in an exposed position; the hillock behind provides some shelter. Pinch out the growing tips when the first flowers appear — this concentrates energy into pod development and reduces blackfly which congregate on soft growing tips. Harvest pods when they feel well-filled but before they turn leathery.`
+  },
+  41: {
+    name: `Potato`,
+    latin: `Solanum tuberosum`,
+    qty: `10–12 tubers`,
+    tag: `Bed 6 · Kitchen & Potato Bed`,
+    color: `#c8a050`,
+    emoji: `🥔`,
+    oneliner: `Brought to Europe from the Andes in the 16th century, the potato transformed European civilisation. Still the most versatile vegetable in the kitchen.`,
+    origin: `Andes, South America · domesticated 7,000–10,000 years ago · brought to Europe c.1570`,
+    history: `The potato was domesticated in the Andes of present-day Peru and Bolivia between seven and ten thousand years ago, where it sustained the Inca civilisation across altitudes and climates where little else would grow. Spanish conquistadors brought it to Europe around 1570 — one of the most consequential plant introductions in history. Within two centuries it had become a staple across Ireland, Germany, and northern Europe, fundamentally altering population dynamics and peasant nutrition.
+
+Its arrival in Australia followed the First Fleet, and it has been grown in kitchen gardens across the country ever since. Planted in Bed 6 in March, it will be approaching harvest through July and August — the cool Nannup winter producing the dense, flavourful tubers that warm-season growing cannot achieve.`,
+    kitchen: `The potato is the most versatile vegetable in the kitchen — roasted, boiled, baked, fried, puréed, gratinated. A freshly dug potato from the garden, cooked the same day, has a flavour and texture entirely different from a stored commercial tuber. The thin skin of a new potato needs no peeling; the flesh is waxy, sweet and dense in a way that months of cold storage never preserves.
+
+For Guy Jeffreys' purposes, freshly dug potatoes from the garden are a serious kitchen ingredient regardless of variety — the provenance and freshness tell their own story.`,
+    growing: `Plant seed potatoes now in March, 10–15cm deep, 30cm apart in a single row. Earth up as the haulm grows — pull soil around the stems leaving only the top growth exposed. This prevents greening and increases yield. The 300mm soil depth requires diligent earthing up. Harvest from June onward when the haulm begins to yellow, or earlier as new potatoes.`
   },
   38: {
     name: `Japanese Bunching Onion`,
